@@ -32,9 +32,9 @@ void seesaw();
 
 // Ultrasonic
 
-uint8_t frontUltrasonicPin = 10;
-uint8_t leftUltrasonicPin = 11;
-uint8_t rightUltrasonicPin = 12;
+static const uint8_t FRONT_ULTRASONIC_PIN = 10;
+static const uint8_t LEFT_ULTRASONIC_PIN = 11;
+static const uint8_t RIGHT_ULTRASONIC_PIN = 12;
 
 NewPing frontUltrasonic();
 NewPing leftUltrasonic();
@@ -46,27 +46,27 @@ Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34
 
 // Infrared
 
-uint8_t westIRPin = 13;
-uint8_t northWestIRPin = A0;
-uint8_t northIRPin = A1;
-uint8_t northEastIRPin = A2;
-uint8_t eastIRPin = A3;
+static const uint8_t WEST_IR_PIN = 13;
+static const uint8_t NORT_WEST_IR_PIN = A0;
+static const uint8_t NORTH_IR_PIN = A1;
+static const uint8_t NORTH_EAST_IR_PIN = A2;
+static const uint8_t EAST_IR_PIN = A3;
 
 // Servo
 
-uint8_t gripperPin = 9;
+static const uint8_t GRIPPER_PIN = 9;
 
 Servo gripper;
 
 // Motor
 
-uint8_t iN1 = 3;
-uint8_t iN2 = 4;
-uint8_t iN3 = 5;
-uint8_t iN4 = 6;
+static const uint8_t IN1 = 3;
+static const uint8_t IN2 = 4;
+static const uint8_t IN3 = 5;
+static const uint8_t IN4 = 6;
 
-uint8_t iNA = 7;
-uint8_t iNB = 8;
+static const uint8_t INA = 7;
+static const uint8_t INB = 8;
 
 /// Main program
 
