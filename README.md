@@ -1,7 +1,7 @@
 
-# Project Aigis
+# Project Aegis
 
-Código del robot "Aigis" para Candidates 2024 de Roborregos.
+Código del robot "Aegis" para Candidates 2024 de Roborregos.
 
 ## Resumen
 
