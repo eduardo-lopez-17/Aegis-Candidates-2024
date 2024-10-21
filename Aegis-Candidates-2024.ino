@@ -72,25 +72,32 @@ static const uint8_t ENB = 8;
 
 void setup()
 {
+    // Motor
+    
     pinMode(IN1, OUTPUT);
     pinMode(IN2, OUTPUT);
     pinMode(IN3, OUTPUT);
     pinMode(IN4, OUTPUT);
     
+    turnOffMotors();
+    
+    // IR
+    
     pinMode(WEST_IR_PIN, INPUT);
     pinMode(NORTH_IR_PIN, INPUT);
     pinMode(EAST_IR_PIN, INPUT);
     
+    // For debugging purposes
+    
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
     
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
+    // Servo
     
     gripper.attach(GRIPPER_PIN);
     Serial.begin(9600);
+    
+    // Color sensor
     
     color.begin();
 }
@@ -141,6 +148,8 @@ void loop()
     
 }
 
+/// Motor
+
 void stepforward()
 {
     digitalWrite(IN1, HIGH);
@@ -150,10 +159,7 @@ void stepforward()
     
     delay(1000);
     
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
+    turnOffMotors();
 }
 
 void stepBack()
@@ -165,18 +171,29 @@ void stepBack()
     
     delay(1000);
     
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
+    turnOffMotors();
 }
 
 void turnRight()
 {
-    
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
 }
 
 void turnLeft()
 {
-    
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+}
+
+void turnOffMotors()
+{
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
 }
