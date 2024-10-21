@@ -106,12 +106,6 @@ void loop()
 {
     // Serial.print("Detects object at ");
     // Serial.println(leftUltrasonic.ping_cm());
-    float r, g, b = 0;
-    color.getRGB(&r, &g, &b);
-    Serial.print("Colors: ");
-    Serial.println(r);
-    Serial.println(g);
-    Serial.println(b);
     
     // stepforward();
     // delay(1000);
@@ -196,4 +190,17 @@ void turnOffMotors()
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, LOW);
+}
+
+/// Color sensor
+
+void readColor()
+{
+    float r, g, b = 0;
+    color.getRGB(&r, &g, &b);
+    
+    Serial.println("Colors: ");
+    Serial.println(r);
+    Serial.println(g);
+    Serial.println(b);
 }
