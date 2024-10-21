@@ -209,5 +209,5 @@ void readColor()
 
 bool isWallInFront()
 {
-    return frontUltrasonic.ping_cm() < WALL_OFFSET;
+    return frontUltrasonic.ping_cm() <= WALL_OFFSET;
 }
