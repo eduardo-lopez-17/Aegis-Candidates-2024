@@ -40,6 +40,8 @@ NewPing frontUltrasonic = NewPing(FRONT_ULTRASONIC_PIN, FRONT_ULTRASONIC_PIN);
 NewPing leftUltrasonic = NewPing(LEFT_ULTRASONIC_PIN, LEFT_ULTRASONIC_PIN);
 NewPing rightUltrasonic = NewPing(RIGHT_ULTRASONIC_PIN, RIGHT_ULTRASONIC_PIN);
 
+static const uint8_t WALL_OFFSET = 15;
+
 // Color
 
 Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
@@ -104,8 +106,6 @@ void setup()
 
 void loop()
 {
-    // Serial.print("Detects object at ");
-    // Serial.println(leftUltrasonic.ping_cm());
     
     // stepforward();
     // delay(1000);
@@ -203,4 +203,11 @@ void readColor()
     Serial.println(r);
     Serial.println(g);
     Serial.println(b);
+}
+
+/// Ultrasonic
+
+bool isWallInFront()
+{
+    return frontUltrasonic.ping_cm() < WALL_OFFSET;
 }
