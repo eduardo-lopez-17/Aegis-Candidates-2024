@@ -79,6 +79,7 @@ enum Direction {
 };
 
 Direction direction = Standing;
+static const uint8_t BASE_SPEED = 10;
 
 // Encoder
 
