@@ -9,12 +9,16 @@
 enum Colors
 {
       RED = 0,
+      ORANGE,
+      YELLOW,
       GREEN,
       BLUE,
-      CYAN,
-      YELLOW,
-      MAGENTA,
-      PURPLE
+      PURPLE,
+      PINK,
+      BROWN,
+      GRAY,
+      BLACK,
+      WHITE
 };
 
 #endif
