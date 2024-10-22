@@ -106,20 +106,14 @@ void setup()
 
 void loop()
 {
+    stepforward();
+    delay(1000);
+    stepBack();
     
-    // stepforward();
-    // delay(1000);
-    // stepBack();
-    
-    // gripper.write(0);
-    // delay(1000);
-    // gripper.write(90);
-    // delay(1000);
-    
-    
-    
-    
-    
+    gripper.write(0);
+    delay(1000);
+    gripper.write(90);
+    delay(1000);
 }
 
 /// Motor
