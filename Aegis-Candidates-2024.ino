@@ -284,6 +284,18 @@ bool isWallInRight()
     return rightUltrasonic.ping_cm() <= WALL_OFFSET;
 }
 
+/// Servo
+
+void openGripper()
+{
+    
+}
+
+void closeGripper()
+{
+    
+}
+
 /// Zones
 
 void zoneA()
