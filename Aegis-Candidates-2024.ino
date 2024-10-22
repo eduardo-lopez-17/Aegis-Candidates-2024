@@ -78,6 +78,8 @@ enum Direction {
     Standing
 };
 
+Direction direction = Standing;
+
 // Encoder
 
 static const uint8_t LEFT_ENCODER_PIN = 2;
@@ -133,6 +135,8 @@ void loop()
 
 void stepforward()
 {
+    direction = Forward;
+    
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, HIGH);
@@ -145,6 +149,8 @@ void stepforward()
 
 void stepBack()
 {
+    direction = Backwards;
+    
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
     digitalWrite(IN3, LOW);
@@ -157,6 +163,8 @@ void stepBack()
 
 void turnRight()
 {
+    direction = Right;
+    
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
     digitalWrite(IN3, HIGH);
@@ -169,6 +177,8 @@ void turnRight()
 
 void turnLeft()
 {
+    direction = Left;
+    
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
@@ -181,6 +191,8 @@ void turnLeft()
 
 void turnOffMotors()
 {
+    direction = Standing;
+    
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
@@ -193,6 +205,11 @@ void turnOffMotors()
 /// Encoder
 
 void readLeftEncoder()
+{
+    
+}
+
+void readRightEncoder()
 {
     
 }
