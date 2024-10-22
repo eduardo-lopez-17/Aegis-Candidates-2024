@@ -291,12 +291,12 @@ bool isWallInRight()
 
 void openGripper()
 {
-    
+    gripper.write(0);
 }
 
 void closeGripper()
 {
-    
+    gripper.write(90);
 }
 
 /// Zones
