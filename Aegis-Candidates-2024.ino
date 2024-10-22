@@ -85,6 +85,9 @@ Direction direction = Standing;
 static const uint8_t LEFT_ENCODER_PIN = 2;
 static const uint8_t RIGHT_ENCODER_PIN = 3;
 
+static uint16_t leftEncoderCounter = 0;
+static uint16_t rightEncoderCounter = 0;
+
 /// Main program
 
 void setup()
@@ -97,6 +100,14 @@ void setup()
     pinMode(IN4, OUTPUT);
     
     turnOffMotors();
+    
+    // Encoder
+    
+    pinMode(LEFT_ENCODER_PIN, INPUT);
+    pinMode(RIGHT_ENCODER_PIN, INPUT);
+    
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
     
     // IR
     
@@ -204,14 +215,14 @@ void turnOffMotors()
 
 /// Encoder
 
-void readLeftEncoder()
+void leftEncoder()
 {
-    
+    leftEncoderCounter++;
 }
 
-void readRightEncoder()
+void rightEncoder()
 {
-    
+    rightEncoderCounter++;
 }
 
 /// Color sensor
