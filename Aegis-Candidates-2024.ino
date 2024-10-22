@@ -270,3 +270,25 @@ bool isWallInRight()
 {
     return rightUltrasonic.ping_cm() <= WALL_OFFSET;
 }
+
+/// Zones
+
+void zoneA()
+{
+    
+}
+
+void zoneB()
+{
+    
+}
+
+void zoneC()
+{
+    
+}
+
+void seesaw()
+{
+    
+}
