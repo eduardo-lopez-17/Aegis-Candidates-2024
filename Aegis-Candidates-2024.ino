@@ -70,6 +70,11 @@ static const uint8_t IN4 = 6;
 static const uint8_t ENA = 7;
 static const uint8_t ENB = 8;
 
+// Encoder
+
+static const uint8_t LEFT_ENCODER_PIN = 2;
+static const uint8_t RIGHT_ENCODER_PIN = 3;
+
 /// Main program
 
 void setup()
@@ -164,6 +169,9 @@ void turnOffMotors()
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, LOW);
+    
+    analogWrite(ENA, 0);
+    analogWrite(ENB, 0);
 }
 
 /// Color sensor
