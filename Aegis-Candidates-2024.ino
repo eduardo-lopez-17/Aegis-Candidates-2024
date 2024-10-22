@@ -307,6 +307,53 @@ void zoneB()
 
 void zoneC()
 {
+    while (true)
+    {
+        const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
+        const byte NORTH_IR_BIT = digitalRead(NORTH_IR_PIN) << 1;
+        const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN) << 0;
+        
+        // Concatenate bits
+        const byte IR_BYTES = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
+        
+        switch (IR_BYTES)
+        {
+            // All IRs detect a black line
+            case 0x000:
+                move(Forward);
+                break;
+            // Left and center IRs detect a black line
+            case 0x001:
+                move(Left);
+                break;
+            // Left and right IRs detect a black line
+            case 0x010:
+                move(Forward);
+                break;
+            // Left IR detects a black line
+            case 0x011:
+                move(Left);
+                break;
+            // Center and right IRs detect a black line
+            case 0x100:
+                move(Right);
+                break;
+            // Center IR detects a black line
+            case 0x101:
+                move(Forward);
+                break;
+            // Right IR detects a black line
+            case 0x110:
+                move(Right);
+                break;
+            // No line detected
+            case 0x111:
+                // It is supposed that we need to stop here
+                // However, I am not sure if we have the correcto appproach.
+                turnOffMotors();
+                break;
+        }
+    }
     
 }
 
