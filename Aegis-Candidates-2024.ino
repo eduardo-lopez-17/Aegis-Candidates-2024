@@ -70,6 +70,14 @@ static const uint8_t IN4 = 6;
 static const uint8_t ENA = 7;
 static const uint8_t ENB = 8;
 
+enum Direction {
+    Forward = 0,
+    Backwards,
+    Left,
+    Right,
+    Standing
+};
+
 // Encoder
 
 static const uint8_t LEFT_ENCODER_PIN = 2;
@@ -153,6 +161,10 @@ void turnRight()
     digitalWrite(IN2, HIGH);
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
+    
+    delay(1000);
+    
+    turnOffMotors();
 }
 
 void turnLeft()
@@ -161,6 +173,10 @@ void turnLeft()
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
+    
+    delay(1000);
+    
+    turnOffMotors();
 }
 
 void turnOffMotors()
@@ -172,6 +188,13 @@ void turnOffMotors()
     
     analogWrite(ENA, 0);
     analogWrite(ENB, 0);
+}
+
+/// Encoder
+
+void readLeftEncoder()
+{
+    
 }
 
 /// Color sensor
