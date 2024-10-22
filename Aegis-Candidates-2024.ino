@@ -302,11 +302,6 @@ void zoneA()
 
 void zoneB()
 {
-    
-}
-
-void zoneC()
-{
     while (true)
     {
         const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
@@ -354,6 +349,11 @@ void zoneC()
                 break;
         }
     }
+    
+}
+
+void zoneC()
+{
     
 }
 
