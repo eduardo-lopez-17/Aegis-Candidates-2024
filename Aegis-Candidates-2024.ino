@@ -144,17 +144,52 @@ void loop()
 
 /// Motor
 
-void stepforward()
+void move(Direction dir, uint8_t speed = BASE_SPEED)
 {
-    direction = Forward;
+    direction = dir;
     
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
+    switch (direction)
+    {
+        case Forward:
+            digitalWrite(IN1, HIGH);
+            digitalWrite(IN2, LOW);
+            digitalWrite(IN3, HIGH);
+            digitalWrite(IN4, LOW);
+            break;
+        case Backwards:
+            digitalWrite(IN1, LOW);
+            digitalWrite(IN2, HIGH);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN4, HIGH);
+            break;
+        case Left:
+            digitalWrite(IN1, HIGH);
+            digitalWrite(IN2, LOW);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN4, HIGH);
+            break;
+        case Right:
+            digitalWrite(IN1, LOW);
+            digitalWrite(IN2, HIGH);
+            digitalWrite(IN3, HIGH);
+            digitalWrite(IN4, LOW);
+            break;
+        
+        default:
+            digitalWrite(IN1, LOW);
+            digitalWrite(IN2, LOW);
+            digitalWrite(IN3, LOW);
+            digitalWrite(IN4, LOW);
+            break;
+    }
     
-    analogWrite(ENA, BASE_SPEED);
-    analogWrite(ENB, BASE_SPEED);
+    analogWrite(ENA, speed);
+    analogWrite(ENB, speed);
+}
+
+void stepForward()
+{
+    move(Forward);
     
     delay(1000);
     
@@ -174,15 +209,7 @@ void stepforward()
 
 void stepBack()
 {
-    direction = Backwards;
-    
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
-    
-    analogWrite(ENA, BASE_SPEED);
-    analogWrite(ENB, BASE_SPEED);
+    move(Backwards);
     
     delay(1000);
     
@@ -191,15 +218,7 @@ void stepBack()
 
 void turnRight()
 {
-    direction = Right;
-    
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-    
-    analogWrite(ENA, BASE_SPEED);
-    analogWrite(ENB, BASE_SPEED);
+    move(Right);
     
     delay(1000);
     
@@ -208,32 +227,16 @@ void turnRight()
 
 void turnLeft()
 {
-    direction = Left;
-    
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
-    
-    analogWrite(ENA, BASE_SPEED);
-    analogWrite(ENB, BASE_SPEED);
+    move(Left);
     
     delay(1000);
     
     turnOffMotors();
 }
 
-void turnOffMotors()
+inline void turnOffMotors()
 {
-    direction = Standing;
-    
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
-    
-    analogWrite(ENA, 0);
-    analogWrite(ENB, 0);
+    move(Standing, 0);
 }
 
 /// Encoder
@@ -294,7 +297,7 @@ void closeGripper()
 
 void zoneA()
 {
-    
+    // stepForward();
 }
 
 void zoneB()
