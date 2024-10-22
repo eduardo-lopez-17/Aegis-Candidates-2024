@@ -344,7 +344,7 @@ void zoneB()
             // No line detected
             case 0x111:
                 // It is supposed that we need to stop here
-                // However, I am not sure if we have the correcto appproach.
+                // However, I am not sure if we have the correct appproach.
                 turnOffMotors();
                 break;
         }
