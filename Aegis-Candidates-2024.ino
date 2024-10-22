@@ -207,7 +207,17 @@ void readColor()
 
 /// Ultrasonic
 
+bool isWallInLeft()
+{
+    return leftUltrasonic.ping_cm() <= WALL_OFFSET;
+}
+
 bool isWallInFront()
 {
     return frontUltrasonic.ping_cm() <= WALL_OFFSET;
+}
+
+bool isWallInRight()
+{
+    return rightUltrasonic.ping_cm() <= WALL_OFFSET;
 }
