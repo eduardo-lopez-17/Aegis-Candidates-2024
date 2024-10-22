@@ -88,6 +88,11 @@ static const uint8_t RIGHT_ENCODER_PIN = 3;
 static uint16_t leftEncoderCounter = 0;
 static uint16_t rightEncoderCounter = 0;
 
+static const uint8_t NUMBER_OF_TEETH = 16;
+static const uint16_t DISTANCE_OF_CENTER_TO_WHEEL = 10;
+static const uint8_t WHEEL_RADIUS = 13;
+static const uint16_t SIDE_OF_UNIT = 30;
+
 /// Main program
 
 void setup()
@@ -154,6 +159,17 @@ void stepforward()
     digitalWrite(IN4, LOW);
     
     delay(1000);
+    
+    float distanceElapsed = 0;
+    
+    while (distanceElapsed >= SIDE_OF_UNIT)
+    {
+        float turns = leftEncoderCounter / NUMBER_OF_TEETH;
+        float diameter = WHEEL_RADIUS * 2 * PI;
+        distanceElapsed = turns * diameter;
+        
+        delayMicroseconds(10);
+    }
     
     turnOffMotors();
 }
