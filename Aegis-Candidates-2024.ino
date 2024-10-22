@@ -159,6 +159,9 @@ void stepforward()
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
     
+    analogWrite(ENA, BASE_SPEED);
+    analogWrite(ENB, BASE_SPEED);
+    
     delay(1000);
     
     float distanceElapsed = 0;
@@ -184,6 +187,9 @@ void stepBack()
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
     
+    analogWrite(ENA, BASE_SPEED);
+    analogWrite(ENB, BASE_SPEED);
+    
     delay(1000);
     
     turnOffMotors();
@@ -198,6 +204,9 @@ void turnRight()
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
     
+    analogWrite(ENA, BASE_SPEED);
+    analogWrite(ENB, BASE_SPEED);
+    
     delay(1000);
     
     turnOffMotors();
@@ -211,6 +220,9 @@ void turnLeft()
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
+    
+    analogWrite(ENA, BASE_SPEED);
+    analogWrite(ENB, BASE_SPEED);
     
     delay(1000);
     
