@@ -57,8 +57,8 @@ static const uint8_t EAST_IR_PIN = A2;
 static const uint8_t GRIPPER_PIN = 9;
 static const uint8_t GRIPPER_ARM_PIN = 10;
 
-Servo gripper;
-Servo gripper_arm;
+static Servo gripper;
+static Servo gripper_arm;
 
 // Motor
 
@@ -78,7 +78,7 @@ enum Direction {
     Standing
 };
 
-Direction direction = Standing;
+static Direction direction = Standing;
 static const uint8_t BASE_SPEED = 10;
 
 // Encoder
