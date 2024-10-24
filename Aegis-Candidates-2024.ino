@@ -189,9 +189,13 @@ void move(Direction dir, uint8_t speed = BASE_SPEED)
 
 void stepForward()
 {
-    move(Forward);
+    leftEncoderCounter = 0;
+    rightEncoderCounter = 0;
     
-    delay(1000);
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
+    
+    move(Forward);
     
     float distanceElapsed = 0;
     
@@ -240,6 +244,15 @@ inline void turnOffMotors()
 }
 
 /// Encoder
+
+void startUsingEncoder()
+{
+    leftEncoderCounter = 0;
+    rightEncoderCounter = 0;
+    
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
+}
 
 void leftEncoder()
 {
