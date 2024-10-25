@@ -7,6 +7,10 @@
 #include "NewPing.h"
 #include "Adafruit_TCS34725.h"
 
+/// Defines
+
+#define DEBUG true
+
 /// Functions
 
 // Color
@@ -23,6 +27,7 @@ void turnLeft();
 
 // Zones
 
+void detectZone();
 void zoneA();
 void zoneB();
 void zoneC();
@@ -307,6 +312,11 @@ void closeGripper()
 }
 
 /// Zones
+
+void detectZone()
+{
+    
+}
 
 void zoneA()
 {
