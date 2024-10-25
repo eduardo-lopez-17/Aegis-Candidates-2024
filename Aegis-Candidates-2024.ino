@@ -15,7 +15,7 @@ void readColor();
 
 // Motor
 
-void stepforward();
+void stepForward();
 void stepBack();
 
 void turnRight();
