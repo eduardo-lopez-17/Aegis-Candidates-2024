@@ -296,9 +296,11 @@ void readColor()
     green /= 5;
     blue /= 5;
     
-    const uint8_t red = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
-    const uint8_t green = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
-    const uint8_t blue = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
+    const int16_t r = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
+    const int16_t g = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
+    const int16_t b = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
+    
+    
     
 }
 
@@ -389,6 +391,82 @@ void zoneB()
                 // It is supposed that we need to stop here
                 // However, I am not sure if we have the correct appproach.
                 turnOffMotors();
+                
+                // I got it, we should do a little scan first.
+                // If found, we procede
+                // Otherwise, we stop
+                bool lineIsLocatedLeft = false;
+                move(Left);
+                const unsigned long initialTime = millis();
+                // In miliseconds
+                const unsigned long finalTime = 100;
+                
+                while (millis() - initialTime <= finalTime)
+                {
+                    if (!digitalRead(WEST_IR_PIN))
+                    {
+                        lineIsLocatedLeft = true;
+                        break;
+                    }
+                    
+                    if (!digitalRead(NORTH_IR_PIN))
+                    {
+                        lineIsLocatedLeft = true;
+                        break;
+                    }
+                    
+                    if (!digitalRead(EAST_IR_PIN))
+                    {
+                        lineIsLocatedLeft = true;
+                        break;
+                    }
+                }
+                
+                move(Standing);
+                
+                delay(100);
+                
+                if (lineIsLocatedLeft)
+                {
+                    // We should continue with the code
+                    break;
+                }
+                
+                // Move back
+                move(Right);
+                
+                delay(finalTime);
+                
+                bool lineIsLocatedRight = false;
+                const unsigned long initialTime = millis();
+                // In miliseconds
+                const unsigned long finalTime = 100;
+                
+                while (millis() - initialTime <= finalTime)
+                {
+                    if (!digitalRead(WEST_IR_PIN))
+                    {
+                        lineIsLocatedRight = true;
+                        break;
+                    }
+                    
+                    if (!digitalRead(NORTH_IR_PIN))
+                    {
+                        lineIsLocatedRight = true;
+                        break;
+                    }
+                    
+                    if (!digitalRead(EAST_IR_PIN))
+                    {
+                        lineIsLocatedRight = true;
+                        break;
+                    }
+                }
+                
+                move(Standing);
+                
+                delay(100);
+                
                 break;
         }
     }
