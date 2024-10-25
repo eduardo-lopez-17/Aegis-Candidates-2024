@@ -51,6 +51,13 @@ static const uint8_t WALL_OFFSET = 15;
 
 Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
+static const uint8_t RED_MIN = 95;
+static const uint8_t RED_MAX = 126;
+static const uint8_t GREEN_MIN = 93;
+static const uint8_t GREEN_MAX = 143;
+static const uint8_t BLUE_MIN = 63;
+static const uint8_t BLUE_MAX = 120;
+
 // Infrared
 
 static const uint8_t WEST_IR_PIN = A0;
