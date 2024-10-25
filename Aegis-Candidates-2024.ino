@@ -49,7 +49,7 @@ static const uint8_t WALL_OFFSET = 15;
 
 // Color
 
-Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_4X);
 
 static const uint8_t RED_MIN = 95;
 static const uint8_t RED_MAX = 126;
@@ -280,13 +280,26 @@ void rightEncoder()
 
 void readColor()
 {
-    float r, g, b = 0;
-    color.getRGB(&r, &g, &b);
+    float red, green, blue = 0;
+    // Take 5 samples
+    for (uint8_t i = 0; i < 5; ++i)
+    {
+        float r, g, b = 0;
+        color.getRGB(&r, &g, &b);
+        red += r;
+        green += g;
+        blue += b;
+    }
     
-    Serial.println("Colors: ");
-    Serial.println(r);
-    Serial.println(g);
-    Serial.println(b);
+    // Average
+    red /= 5;
+    green /= 5;
+    blue /= 5;
+    
+    const uint8_t red = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
+    const uint8_t green = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
+    const uint8_t blue = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
+    
 }
 
 /// Ultrasonic
