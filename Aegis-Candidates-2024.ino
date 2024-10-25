@@ -199,7 +199,7 @@ void stepForward()
     
     float distanceElapsed = 0;
     
-    while (distanceElapsed >= SIDE_OF_UNIT)
+    while (distanceElapsed >= SIDE_OF_UNIT / 2)
     {
         float turns = leftEncoderCounter / NUMBER_OF_TEETH;
         float diameter = WHEEL_RADIUS * 2 * PI;
