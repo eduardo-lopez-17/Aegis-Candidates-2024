@@ -10,6 +10,7 @@
 /// Defines
 
 #define DEBUG true
+#define ENABLE_ENCODER false
 
 /// Functions
 
@@ -121,22 +122,21 @@ void setup()
     
     // Encoder
     
+    #if ENABLE_ENCODER
+    
     pinMode(LEFT_ENCODER_PIN, INPUT);
     pinMode(RIGHT_ENCODER_PIN, INPUT);
     
     attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
     attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
     
+    #endif
+    
     // IR
     
     pinMode(WEST_IR_PIN, INPUT);
     pinMode(NORTH_IR_PIN, INPUT);
     pinMode(EAST_IR_PIN, INPUT);
-    
-    // For debugging purposes
-    
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
     
     // Servo
     
@@ -201,13 +201,19 @@ void move(Direction dir, uint8_t speed = BASE_SPEED)
 
 void stepForward()
 {
+    #if ENABLE_ENCODER
+    
     leftEncoderCounter = 0;
     rightEncoderCounter = 0;
     
     attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
     attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
     
+    #endif
+    
     move(Forward);
+    
+    #if ENABLE_ENCODER
     
     float distanceElapsed = 0;
     
@@ -219,6 +225,10 @@ void stepForward()
         
         delayMicroseconds(10);
     }
+    
+    #endif
+    
+    delay(1000);
     
     turnOffMotors();
 }
@@ -347,7 +357,8 @@ void zoneA()
 
 void zoneB()
 {
-    while (true)
+    bool isEndReached = false;
+    while (!isEndReached)
     {
         const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
         const byte NORTH_IR_BIT = digitalRead(NORTH_IR_PIN) << 1;
@@ -397,6 +408,7 @@ void zoneB()
                 // Otherwise, we stop
                 bool lineIsLocatedLeft = false;
                 move(Left);
+                
                 const unsigned long initialTime = millis();
                 // In miliseconds
                 const unsigned long finalTime = 100;
@@ -447,19 +459,16 @@ void zoneB()
                     if (!digitalRead(WEST_IR_PIN))
                     {
                         lineIsLocatedRight = true;
-                        break;
                     }
                     
                     if (!digitalRead(NORTH_IR_PIN))
                     {
                         lineIsLocatedRight = true;
-                        break;
                     }
                     
                     if (!digitalRead(EAST_IR_PIN))
                     {
                         lineIsLocatedRight = true;
-                        break;
                     }
                 }
                 
@@ -467,10 +476,16 @@ void zoneB()
                 
                 delay(100);
                 
+                if (!lineIsLocatedRight)
+                {
+                    isEndReached = true;
+                }
+                
                 break;
         }
     }
     
+    // We are done
 }
 
 void zoneC()
