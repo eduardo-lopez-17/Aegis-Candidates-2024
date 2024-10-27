@@ -451,8 +451,6 @@ void zoneB()
                 
                 bool lineIsLocatedRight = false;
                 const unsigned long initialTime = millis();
-                // In miliseconds
-                const unsigned long finalTime = 100;
                 
                 while (millis() - initialTime <= finalTime)
                 {
