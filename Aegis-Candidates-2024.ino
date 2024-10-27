@@ -75,13 +75,13 @@ static Servo gripper_arm;
 
 // Motor
 
-static const uint8_t IN1 = 3;
-static const uint8_t IN2 = 4;
-static const uint8_t IN3 = 5;
-static const uint8_t IN4 = 6;
+static const uint8_t IN1 = 2;
+static const uint8_t IN2 = 3;
+static const uint8_t IN3 = 4;
+static const uint8_t IN4 = 7;
 
-static const uint8_t ENA = 7;
-static const uint8_t ENB = 8;
+static const uint8_t ENA = 5;
+static const uint8_t ENB = 6;
 
 enum Direction {
     Forward = 0,
