@@ -155,9 +155,6 @@ void setup()
 void loop()
 {
     detectZone();
-    
-    // readColor();
-    // delay(1000);
 }
 
 /// Motor
