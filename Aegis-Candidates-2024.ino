@@ -365,9 +365,25 @@ void closeGripper()
 
 void detectZone()
 {
-    struct Color rgb = readColor();
+    struct Color color = readColor();
     
-    zoneB();
+    // Do some analysis
+    
+    // We mainly need to detect 2 colors blue and green I guess
+    // If none then it should be zone B
+    
+    if (color.blue > color.green & color.blue > color.red)
+    {
+        zoneC();
+    }
+    else if (color.green > color.blue & color.green > color.red)
+    {
+        zoneA();
+    }
+    else
+    {
+        zoneB();
+    }
 }
 
 void zoneA()
