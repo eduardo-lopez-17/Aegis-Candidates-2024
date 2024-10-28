@@ -59,12 +59,12 @@ Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
     TCS34725_INTEGRATIONTIME_600MS,
     TCS34725_GAIN_4X);
 
-static const uint8_t RED_MIN = 95;
-static const uint8_t RED_MAX = 126;
-static const uint8_t GREEN_MIN = 93;
-static const uint8_t GREEN_MAX = 143;
-static const uint8_t BLUE_MIN = 63;
-static const uint8_t BLUE_MAX = 120;
+static const uint8_t RED_MIN = 80;
+static const uint8_t RED_MAX = 255;
+static const uint8_t GREEN_MIN = 80;
+static const uint8_t GREEN_MAX = 255;
+static const uint8_t BLUE_MIN = 80;
+static const uint8_t BLUE_MAX = 255;
 
 // Infrared
 
@@ -159,7 +159,9 @@ void setup()
 
 void loop()
 {
-    detectZone();
+    // detectZone();
+    readColor();
+    delay(100);
 }
 
 /// Motor
@@ -308,28 +310,41 @@ Color readColor()
 {
     float red, green, blue = 0;
     // Take 5 samples
-    for (uint8_t i = 0; i < 5; ++i)
-    {
-        float r, g, b = 0;
-        sensorColor.getRGB(&r, &g, &b);
-        red += r;
-        green += g;
-        blue += b;
-    }
+    // for (uint8_t i = 0; i < 5; ++i)
+    // {
+    //     float r, g, b = 0;
+    //     sensorColor.getRGB(&r, &g, &b);
+    //     red += r;
+    //     green += g;
+    //     blue += b;
+    // }
     
-    // Average
-    red /= 5;
-    green /= 5;
-    blue /= 5;
+    // // Average
+    // red /= 5;
+    // green /= 5;
+    // blue /= 5;
     
-    const int16_t r = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
-    const int16_t g = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
-    const int16_t b = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
+    sensorColor.getRGB(&red, &green, &blue);
+    
+    // const int16_t r = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
+    // const int16_t g = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
+    // const int16_t b = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
+    
+    
     
     Color color;
-    color.red = r;
-    color.green = g;
-    color.blue = b;
+    // color.red = r;
+    // color.green = g;
+    // color.blue = b;
+    
+    color.red = red;
+    color.green = green;
+    color.blue = blue;
+    
+    Serial.println("Colors");
+    Serial.println(color.red);
+    Serial.println(color.green);
+    Serial.println(color.red); 
     
     return color;
 }
