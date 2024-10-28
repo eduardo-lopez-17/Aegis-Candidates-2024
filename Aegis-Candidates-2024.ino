@@ -545,6 +545,14 @@ void zoneC()
 {
     // We are going to make a laberynth solver
     
+    // Size of the map minus 1
+    const uint8_t sizeX = 3; // Size of 3 really
+    const uint8_t sizeY = 6; // Size of 6 really
+    
+    // Initial coordinates in the plane
+    uint8_t coordinateX = 1;
+    uint8_t coordinateY = 0;
+    
     // Default facing
     uint8_t cardinalDirection = North;
     
@@ -558,6 +566,23 @@ void zoneC()
         turnRight();
         
         // Move coordinate
+        
+        switch (cardinalDirection)
+        {
+            case North:
+                ++coordinateY;
+                break;
+            case South:
+                --coordinateY;
+                break;
+            case West:
+                --coordinateX;
+                break;
+            case East:
+                ++coordinateX;
+                break;
+        }
+        
         stepForward();
         stepForward();
     }
@@ -565,6 +590,23 @@ void zoneC()
     {
         // Go forward
         // And move coordinate
+        
+        switch (cardinalDirection)
+        {
+            case North:
+                ++coordinateY;
+                break;
+            case South:
+                --coordinateY;
+                break;
+            case West:
+                --coordinateX;
+                break;
+            case East:
+                ++coordinateX;
+                break;
+        }
+        
         stepForward();
         stepForward();
     }
@@ -575,6 +617,12 @@ void zoneC()
         // Rotate the view to 90 degrees to the left
         cardinalDirection = (cardinalDirection - 1) % 4;
         turnLeft();
+    }
+    
+    if (coordinateX == 2 & coordinateY == 5)
+    {
+        // Done!
+        halt();
     }
     
     // Color color = readColor();
