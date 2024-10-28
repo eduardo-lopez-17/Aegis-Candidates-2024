@@ -92,7 +92,7 @@ enum Direction {
 };
 
 static Direction direction = Standing;
-static const uint8_t BASE_SPEED = 10;
+static const uint8_t BASE_SPEED = 50;
 
 // Encoder
 
@@ -141,58 +141,70 @@ void setup()
     // Servo
     
     gripper.attach(GRIPPER_PIN);
-    Serial.begin(9600);
     
     // Color sensor
     
     color.begin();
+    
+    Serial.begin(9600);
+    Serial.println("Working");
 }
 
 void loop()
 {
-    readColor();
-    delay(1000);
+    zoneB();
+    
+    // readColor();
+    // delay(1000);
 }
 
 /// Motor
 
 void move(Direction dir, uint8_t speed = BASE_SPEED)
 {
-    direction = dir;
-    
-    switch (direction)
+    if (direction != dir)
     {
-        case Forward:
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, LOW);
-            digitalWrite(IN3, HIGH);
-            digitalWrite(IN4, LOW);
-            break;
-        case Backwards:
-            digitalWrite(IN1, LOW);
-            digitalWrite(IN2, HIGH);
-            digitalWrite(IN3, LOW);
-            digitalWrite(IN4, HIGH);
-            break;
-        case Left:
-            digitalWrite(IN1, HIGH);
-            digitalWrite(IN2, LOW);
-            digitalWrite(IN3, LOW);
-            digitalWrite(IN4, HIGH);
-            break;
-        case Right:
-            digitalWrite(IN1, LOW);
-            digitalWrite(IN2, HIGH);
-            digitalWrite(IN3, HIGH);
-            digitalWrite(IN4, LOW);
-            break;
+        direction = dir;
         
-        default:
-            digitalWrite(IN1, LOW);
-            digitalWrite(IN2, LOW);
-            digitalWrite(IN3, LOW);
-            digitalWrite(IN4, LOW);
-            break;
+        switch (direction)
+        {
+            case Forward:
+                digitalWrite(IN1, HIGH);
+                digitalWrite(IN2, LOW);
+                digitalWrite(IN3, HIGH);
+                digitalWrite(IN4, LOW);
+                Serial.println("Forward");
+                break;
+            case Backwards:
+                digitalWrite(IN1, LOW);
+                digitalWrite(IN2, HIGH);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, HIGH);
+                Serial.println("Backwards");
+                break;
+            case Left:
+                digitalWrite(IN1, HIGH);
+                digitalWrite(IN2, LOW);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, HIGH);
+                Serial.println("Left");
+                break;
+            case Right:
+                digitalWrite(IN1, LOW);
+                digitalWrite(IN2, HIGH);
+                digitalWrite(IN3, HIGH);
+                digitalWrite(IN4, LOW);
+                Serial.println("Right");
+                break;
+            
+            default:
+                digitalWrite(IN1, LOW);
+                digitalWrite(IN2, LOW);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, LOW);
+                Serial.println("Not moving");
+                break;
+        }
     }
     
     analogWrite(ENA, speed);
@@ -362,46 +374,53 @@ void zoneB()
     {
         const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
         const byte NORTH_IR_BIT = digitalRead(NORTH_IR_PIN) << 1;
-        const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN) << 0;
+        const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN);
         
         // Concatenate bits
         const byte IR_BYTES = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
         
+        // Serial.println(IR_BYTES, BIN);
+        
         switch (IR_BYTES)
         {
             // All IRs detect a black line
-            case 0x000:
+            case 0b000:
                 move(Forward);
                 break;
             // Left and center IRs detect a black line
-            case 0x001:
+            case 0b001:
                 move(Left);
                 break;
             // Left and right IRs detect a black line
-            case 0x010:
+            case 0b010:
                 move(Forward);
                 break;
             // Left IR detects a black line
-            case 0x011:
+            case 0b011:
                 move(Left);
                 break;
             // Center and right IRs detect a black line
-            case 0x100:
+            case 0b100:
                 move(Right);
                 break;
             // Center IR detects a black line
-            case 0x101:
+            case 0b101:
                 move(Forward);
                 break;
             // Right IR detects a black line
-            case 0x110:
+            case 0b110:
                 move(Right);
                 break;
             // No line detected
-            case 0x111:
+            case 0b111:
+                
+                Serial.println("Scanning");
+                
                 // It is supposed that we need to stop here
                 // However, I am not sure if we have the correct appproach.
                 turnOffMotors();
+                
+                Serial.println("Scanning Left");
                 
                 // I got it, we should do a little scan first.
                 // If found, we procede
@@ -409,9 +428,9 @@ void zoneB()
                 bool lineIsLocatedLeft = false;
                 move(Left);
                 
-                const unsigned long initialTime = millis();
+                unsigned long initialTime = millis();
                 // In miliseconds
-                const unsigned long finalTime = 100;
+                const unsigned long finalTime = 1000;
                 
                 while (millis() - initialTime <= finalTime)
                 {
@@ -449,8 +468,10 @@ void zoneB()
                 
                 delay(finalTime);
                 
+                Serial.println("Scanning Right");
+                
                 bool lineIsLocatedRight = false;
-                const unsigned long initialTime = millis();
+                initialTime = millis();
                 
                 while (millis() - initialTime <= finalTime)
                 {
@@ -479,9 +500,19 @@ void zoneB()
                     isEndReached = true;
                 }
                 
+                move(Left);
+                
+                delay(finalTime);
+                
+                move(Standing);
+                
                 break;
         }
     }
+    
+    Serial.println("Zone B done");
+    turnOffMotors();
+    for (;;);
     
     // We are done
 }
