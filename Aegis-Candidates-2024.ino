@@ -7,6 +7,8 @@
 #include "NewPing.h"
 #include "Adafruit_TCS34725.h"
 
+#include "lib/Colors.h"
+
 /// Defines
 
 #define DEBUG true
@@ -16,7 +18,7 @@
 
 // Color
 
-void readColor();
+Color readColor();
 
 // Motor
 
@@ -50,7 +52,7 @@ static const uint8_t WALL_OFFSET = 15;
 
 // Color
 
-Adafruit_TCS34725 color = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_4X);
 
 static const uint8_t RED_MIN = 95;
 static const uint8_t RED_MAX = 126;
@@ -144,7 +146,7 @@ void setup()
     
     // Color sensor
     
-    color.begin();
+    sensorColor.begin();
     
     Serial.begin(9600);
     Serial.println("Working");
@@ -152,7 +154,7 @@ void setup()
 
 void loop()
 {
-    zoneB();
+    detectZone();
     
     // readColor();
     // delay(1000);
@@ -300,14 +302,14 @@ void rightEncoder()
 
 /// Color sensor
 
-void readColor()
+Color readColor()
 {
     float red, green, blue = 0;
     // Take 5 samples
     for (uint8_t i = 0; i < 5; ++i)
     {
         float r, g, b = 0;
-        color.getRGB(&r, &g, &b);
+        sensorColor.getRGB(&r, &g, &b);
         red += r;
         green += g;
         blue += b;
@@ -322,8 +324,12 @@ void readColor()
     const int16_t g = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
     const int16_t b = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
     
+    Color color;
+    color.red = r;
+    color.green = g;
+    color.blue = b;
     
-    
+    return color;
 }
 
 /// Ultrasonic
@@ -359,7 +365,9 @@ void closeGripper()
 
 void detectZone()
 {
+    struct Color rgb = readColor();
     
+    zoneB();
 }
 
 void zoneA()
