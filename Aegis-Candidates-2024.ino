@@ -52,7 +52,9 @@ static const uint8_t WALL_OFFSET = 15;
 
 // Color
 
-Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
+    TCS34725_INTEGRATIONTIME_600MS,
+    TCS34725_GAIN_4X);
 
 static const uint8_t RED_MIN = 95;
 static const uint8_t RED_MAX = 126;
