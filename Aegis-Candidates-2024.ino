@@ -8,6 +8,7 @@
 #include "Adafruit_TCS34725.h"
 
 #include "lib/Colors.h"
+#include "lib/Azimuth.h"
 
 /// Defines
 
@@ -35,6 +36,8 @@ void zoneA();
 void zoneB();
 void zoneC();
 void seesaw();
+
+void halt();
 
 /// Variables
 
@@ -533,19 +536,65 @@ void zoneB()
         }
     }
     
-    Serial.println("Zone B done");
-    turnOffMotors();
-    for (;;);
-    
     // We are done
+    Serial.println("Zone B done");
+    halt();
 }
 
 void zoneC()
 {
+    // We are going to make a laberynth solver
+    
+    // Default facing
+    uint8_t cardinalDirection = North;
+    
+    // Using the right hand method to solve the maze
+    if (!isWallInRight())
+    {
+        // Go right
+        
+        // Rotate the view to 90 degrees to the right
+        cardinalDirection = (cardinalDirection + 1) % 4;
+        turnRight();
+        
+        // Move coordinate
+        stepForward();
+        stepForward();
+    }
+    else if (!isWallInFront())
+    {
+        // Go forward
+        // And move coordinate
+        stepForward();
+        stepForward();
+    }
+    else
+    {
+        // Turn left
+        
+        // Rotate the view to 90 degrees to the left
+        cardinalDirection = (cardinalDirection - 1) % 4;
+        turnLeft();
+    }
+    
+    // Color color = readColor();
+    
+    // if (color.red >= color.blue & color.red >= color.green)
+    // {
+    //     // We are finished
+        
+    //     halt();
+    // }
     
 }
 
 void seesaw()
 {
     
+}
+
+void halt()
+{
+    turnOffMotors();
+    for (;;);
 }
