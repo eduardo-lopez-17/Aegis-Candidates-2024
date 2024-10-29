@@ -436,6 +436,7 @@ void zoneB()
                 break;
             // Left and center IRs detect a black line
             case 0b001:
+                lastTurn = Left;
                 move(Left);
                 break;
             // Left and right IRs detect a black line
@@ -444,10 +445,12 @@ void zoneB()
                 break;
             // Left IR detects a black line
             case 0b011:
+                lastTurn = Left;
                 move(Left);
                 break;
             // Center and right IRs detect a black line
             case 0b100:
+                lastTurn = Right;
                 move(Right);
                 break;
             // Center IR detects a black line
@@ -456,118 +459,13 @@ void zoneB()
                 break;
             // Right IR detects a black line
             case 0b110:
+                lastTurn = Right;
                 move(Right);
                 break;
             // No line detected
             case 0b111:
                 
-                Serial.println("Scanning");
-                
-                // It is supposed that we need to stop here
-                // However, I am not sure if we have the correct appproach.
-                turnOffMotors();
-                
-                // I got it, we should do a little scan first.
-                // If found, we procede
-                // Otherwise, we stop
-                
-                Direction firstSide = Left;
-                Direction SecondSide = Right;
-                // But first we need to remember which side we were moving to
-                if (lastTurn == Left)
-                {
-                    firstSide = Left;
-                    SecondSide = Right;
-                }
-                else if (lastTurn == Right)
-                {
-                    firstSide = Right;
-                    SecondSide = Left;
-                }
-                
-                bool lineIsLocatedFirstSide = false;
-                move(firstSide);
-                
-                unsigned long initialTime = millis();
-                // In miliseconds
-                const unsigned long finalTime = 1000;
-                
-                while (millis() - initialTime <= finalTime)
-                {
-                    if (!digitalRead(WEST_IR_PIN))
-                    {
-                        lineIsLocatedFirstSide = true;
-                        break;
-                    }
-                    
-                    if (!digitalRead(NORTH_IR_PIN))
-                    {
-                        lineIsLocatedFirstSide = true;
-                        break;
-                    }
-                    
-                    if (!digitalRead(EAST_IR_PIN))
-                    {
-                        lineIsLocatedFirstSide = true;
-                        break;
-                    }
-                }
-                
-                move(Standing);
-                
-                delay(100);
-                
-                if (lineIsLocatedFirstSide)
-                {
-                    // We should continue with the code
-                    break;
-                }
-                
-                // Move back
-                move(SecondSide);
-                
-                delay(finalTime);
-                
-                Serial.println("Scanning Right");
-                
-                bool lineIsLocatedSecondSide = false;
-                initialTime = millis();
-                
-                while (millis() - initialTime <= finalTime)
-                {
-                    if (!digitalRead(WEST_IR_PIN))
-                    {
-                        lineIsLocatedSecondSide = true;
-                        break;
-                    }
-                    
-                    if (!digitalRead(NORTH_IR_PIN))
-                    {
-                        lineIsLocatedSecondSide = true;
-                        break;
-                    }
-                    
-                    if (!digitalRead(EAST_IR_PIN))
-                    {
-                        lineIsLocatedSecondSide = true;
-                        break;
-                    }
-                }
-                
-                move(Standing);
-                
-                delay(100);
-                
-                if (!lineIsLocatedSecondSide)
-                {
-                    isEndReached = true;
-                }
-                
-                move(firstSide);
-                
-                delay(finalTime);
-                
-                move(Standing);
+                isEndReached = scan(lastTurn);
                 
                 break;
         }
@@ -576,6 +474,146 @@ void zoneB()
     // We are done
     Serial.println("Zone B done");
     halt();
+}
+
+bool scan(Direction &lastTurn)
+{
+    
+    Serial.println("Scanning");
+    
+    // I got it, we should do a little scan first.
+    // If found, we procede
+    // Otherwise, we stop
+    
+    Direction firstSide = Left;
+    Direction SecondSide = Right;
+    // But first we need to remember which side we were moving to
+    
+    // We kinda consider that we are following a straight line
+    // So we say we need to turn back to the last time we turning
+    // e. g. If we were turning right, and the middle sensor loses
+    // track of the line, we turn left, since we might have go to
+    // the right side of the line, so we need to go left to find it
+    // again.
+    // For the left and right sensors, we "interpolate" were the line
+    // should be.
+    
+    // Hope this explains it right. I think I wasted more time typing
+    // these comments other than typing the code. *sad*
+    if (direction == Forward)
+    {
+        if (lastTurn == Left)
+        {
+            firstSide = Right;
+            SecondSide = Left;
+        }
+        else if (lastTurn == Right)
+        {
+            firstSide = Left;
+            SecondSide = Right;
+        }
+    }
+    else
+    {
+        if (lastTurn == Left)
+        {
+            firstSide = Left;
+            SecondSide = Right;
+        }
+        else if (lastTurn == Right)
+        {
+            firstSide = Right;
+            SecondSide = Left;
+        }
+    }
+    
+    // It is supposed that we need to stop here
+    // However, I am not sure if we have the correct appproach.
+    turnOffMotors();
+    
+    bool lineIsLocatedFirstSide = false;
+    lastTurn = firstSide;
+    move(firstSide);
+    
+    unsigned long initialTime = millis();
+    // In miliseconds
+    const unsigned long finalTime = 1000;
+    
+    while (millis() - initialTime <= finalTime)
+    {
+        if (!digitalRead(WEST_IR_PIN))
+        {
+            lineIsLocatedFirstSide = true;
+            break;
+        }
+        
+        if (!digitalRead(NORTH_IR_PIN))
+        {
+            lineIsLocatedFirstSide = true;
+            break;
+        }
+        
+        if (!digitalRead(EAST_IR_PIN))
+        {
+            lineIsLocatedFirstSide = true;
+            break;
+        }
+    }
+    
+    move(Standing);
+    
+    delay(100);
+    
+    // We should continue with the code
+    if (lineIsLocatedFirstSide) return false;
+    
+    // Move back
+    lastTurn = SecondSide;
+    move(SecondSide);
+    
+    delay(finalTime);
+    
+    Serial.println("Scanning Right");
+    
+    bool lineIsLocatedSecondSide = false;
+    initialTime = millis();
+    
+    while (millis() - initialTime <= finalTime)
+    {
+        if (!digitalRead(WEST_IR_PIN))
+        {
+            lineIsLocatedSecondSide = true;
+            break;
+        }
+        
+        if (!digitalRead(NORTH_IR_PIN))
+        {
+            lineIsLocatedSecondSide = true;
+            break;
+        }
+        
+        if (!digitalRead(EAST_IR_PIN))
+        {
+            lineIsLocatedSecondSide = true;
+            break;
+        }
+    }
+    
+    move(Standing);
+    
+    delay(100);
+    
+    lastTurn = firstSide;
+    move(firstSide);
+    
+    delay(finalTime);
+    
+    move(Standing);
+    
+    // Yeah we are done with this zone
+    if (!lineIsLocatedSecondSide) return true;
+    
+    return false;
 }
 
 void zoneC()
