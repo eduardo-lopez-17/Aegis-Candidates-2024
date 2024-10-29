@@ -101,6 +101,8 @@ enum Direction {
 static Direction direction = Standing;
 static const uint8_t BASE_SPEED = 50;
 
+static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 2000;
+
 // Encoder
 
 static const uint8_t LEFT_ENCODER_PIN = 2;
@@ -160,8 +162,9 @@ void setup()
 void loop()
 {
     // detectZone();
-    readColor();
-    delay(100);
+    zoneB();
+    // readColor();
+    // delay(100);
 }
 
 /// Motor
@@ -410,6 +413,9 @@ void zoneA()
 
 void zoneB()
 {
+    // I saw and we need a variable to remember where we were searching
+    Direction lastTurn = Left;
+    
     bool isEndReached = false;
     while (!isEndReached)
     {
@@ -461,13 +467,26 @@ void zoneB()
                 // However, I am not sure if we have the correct appproach.
                 turnOffMotors();
                 
-                Serial.println("Scanning Left");
-                
                 // I got it, we should do a little scan first.
                 // If found, we procede
                 // Otherwise, we stop
-                bool lineIsLocatedLeft = false;
-                move(Left);
+                
+                Direction firstSide = Left;
+                Direction SecondSide = Right;
+                // But first we need to remember which side we were moving to
+                if (lastTurn == Left)
+                {
+                    firstSide = Left;
+                    SecondSide = Right;
+                }
+                else if (lastTurn == Right)
+                {
+                    firstSide = Right;
+                    SecondSide = Left;
+                }
+                
+                bool lineIsLocatedFirstSide = false;
+                move(firstSide);
                 
                 unsigned long initialTime = millis();
                 // In miliseconds
@@ -477,19 +496,19 @@ void zoneB()
                 {
                     if (!digitalRead(WEST_IR_PIN))
                     {
-                        lineIsLocatedLeft = true;
+                        lineIsLocatedFirstSide = true;
                         break;
                     }
                     
                     if (!digitalRead(NORTH_IR_PIN))
                     {
-                        lineIsLocatedLeft = true;
+                        lineIsLocatedFirstSide = true;
                         break;
                     }
                     
                     if (!digitalRead(EAST_IR_PIN))
                     {
-                        lineIsLocatedLeft = true;
+                        lineIsLocatedFirstSide = true;
                         break;
                     }
                 }
@@ -498,37 +517,40 @@ void zoneB()
                 
                 delay(100);
                 
-                if (lineIsLocatedLeft)
+                if (lineIsLocatedFirstSide)
                 {
                     // We should continue with the code
                     break;
                 }
                 
                 // Move back
-                move(Right);
+                move(SecondSide);
                 
                 delay(finalTime);
                 
                 Serial.println("Scanning Right");
                 
-                bool lineIsLocatedRight = false;
+                bool lineIsLocatedSecondSide = false;
                 initialTime = millis();
                 
                 while (millis() - initialTime <= finalTime)
                 {
                     if (!digitalRead(WEST_IR_PIN))
                     {
-                        lineIsLocatedRight = true;
+                        lineIsLocatedSecondSide = true;
+                        break;
                     }
                     
                     if (!digitalRead(NORTH_IR_PIN))
                     {
-                        lineIsLocatedRight = true;
+                        lineIsLocatedSecondSide = true;
+                        break;
                     }
                     
                     if (!digitalRead(EAST_IR_PIN))
                     {
-                        lineIsLocatedRight = true;
+                        lineIsLocatedSecondSide = true;
+                        break;
                     }
                 }
                 
@@ -536,12 +558,12 @@ void zoneB()
                 
                 delay(100);
                 
-                if (!lineIsLocatedRight)
+                if (!lineIsLocatedSecondSide)
                 {
                     isEndReached = true;
                 }
                 
-                move(Left);
+                move(firstSide);
                 
                 delay(finalTime);
                 
