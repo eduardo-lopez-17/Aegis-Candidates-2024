@@ -300,12 +300,12 @@ void startUsingEncoder()
 
 void leftEncoder()
 {
-    leftEncoderCounter++;
+    ++leftEncoderCounter;
 }
 
 void rightEncoder()
 {
-    rightEncoderCounter++;
+    ++rightEncoderCounter;
 }
 
 /// Color sensor
