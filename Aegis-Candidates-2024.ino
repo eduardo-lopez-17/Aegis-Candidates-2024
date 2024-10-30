@@ -479,7 +479,6 @@ void zoneB()
 
 bool scan(Direction &lastTurn)
 {
-    
     Serial.println("Scanning");
     
     // I got it, we should do a little scan first.
