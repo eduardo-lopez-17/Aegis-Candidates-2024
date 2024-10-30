@@ -44,10 +44,7 @@ static const uint8_t EAST_IR_PIN = A2;
 // Servo
 
 static const uint8_t GRIPPER_PIN = 9;
-static const uint8_t GRIPPER_ARM_PIN = 10;
-
 static Servo gripper;
-static Servo gripper_arm;
 
 // Motor
 
@@ -89,6 +86,12 @@ static const uint8_t WHEEL_RADIUS = 13;
 static const uint16_t SIDE_OF_UNIT = 30;
 
 #endif
+
+// LED
+
+static const uint8_t LED_RED_PIN = 8;
+static const uint8_t LED_GREEN_PIN = 13;
+static const uint8_t LED_BLUE_PIN = A3;
 
 /// Function Prototype
 
@@ -190,10 +193,11 @@ void setup()
 
 void loop()
 {
-    // detectZone();
     // zoneB();
-    readColor();
-    delay(100);
+    // readColor();
+    // delay(100);
+    
+    detectZone();
 }
 
 /// Motor
