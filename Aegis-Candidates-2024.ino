@@ -115,6 +115,8 @@ bool isWallInRight();
 // Servo
 void openGripper();
 void closeGripper();
+// LED
+void turnOnLED(Colors color);
 // Zones
 void detectZone();
 void zoneA();
@@ -186,6 +188,16 @@ void setup()
     // Color sensor
     
     sensorColor.begin();
+    
+    // LED
+    
+    pinMode(LED_RED_PIN, OUTPUT);
+    pinMode(LED_GREEN_PIN, OUTPUT);
+    pinMode(LED_BLUE_PIN, OUTPUT);
+    
+    digitalWrite(LED_RED_PIN, LOW);
+    digitalWrite(LED_GREEN_PIN, LOW);
+    digitalWrite(LED_BLUE_PIN, LOW);
     
     Serial.begin(9600);
     Serial.println("Working");
@@ -394,6 +406,45 @@ void closeGripper()
     gripper.write(90);
 }
 
+/// LED
+
+void turnOnLED(Colors color = BLACK)
+{
+    // Asociate the color identificated with a certain partern of the LED
+    switch (color)
+    {
+    case RED:
+    case MAGENTA:
+        digitalWrite(LED_RED_PIN, HIGH);
+        digitalWrite(LED_GREEN_PIN, LOW);
+        digitalWrite(LED_BLUE_PIN, LOW);
+        break;
+    case GREEN:
+    case PURPLE:
+        digitalWrite(LED_RED_PIN, LOW);
+        digitalWrite(LED_GREEN_PIN, HIGH);
+        digitalWrite(LED_BLUE_PIN, LOW);
+        break;
+    case BLUE:
+    case YELLOW:
+        digitalWrite(LED_RED_PIN, LOW);
+        digitalWrite(LED_GREEN_PIN, LOW);
+        digitalWrite(LED_BLUE_PIN, HIGH);
+        break;
+    case WHITE:
+        digitalWrite(LED_RED_PIN, HIGH);
+        digitalWrite(LED_GREEN_PIN, HIGH);
+        digitalWrite(LED_BLUE_PIN, HIGH);
+        break;
+    
+    default:
+        digitalWrite(LED_RED_PIN, LOW);
+        digitalWrite(LED_GREEN_PIN, LOW);
+        digitalWrite(LED_BLUE_PIN, LOW);
+        break;
+    }
+}
+
 /// Zones
 
 void detectZone()
@@ -545,44 +596,44 @@ void zoneB()
         
         switch (IR_BYTES)
         {
-            // All IRs detect a black line
-            case 0b000:
-                move(Forward);
-                break;
-            // Left and center IRs detect a black line
-            case 0b001:
-                lastTurn = Left;
-                move(Left);
-                break;
-            // Left and right IRs detect a black line
-            case 0b010:
-                move(Forward);
-                break;
-            // Left IR detects a black line
-            case 0b011:
-                lastTurn = Left;
-                move(Left);
-                break;
-            // Center and right IRs detect a black line
-            case 0b100:
-                lastTurn = Right;
-                move(Right);
-                break;
-            // Center IR detects a black line
-            case 0b101:
-                move(Forward);
-                break;
-            // Right IR detects a black line
-            case 0b110:
-                lastTurn = Right;
-                move(Right);
-                break;
-            // No line detected
-            case 0b111:
-                
-                isEndReached = scan(lastTurn);
-                
-                break;
+        // All IRs detect a black line
+        case 0b000:
+            move(Forward);
+            break;
+        // Left and center IRs detect a black line
+        case 0b001:
+            lastTurn = Left;
+            move(Left);
+            break;
+        // Left and right IRs detect a black line
+        case 0b010:
+            move(Forward);
+            break;
+        // Left IR detects a black line
+        case 0b011:
+            lastTurn = Left;
+            move(Left);
+            break;
+        // Center and right IRs detect a black line
+        case 0b100:
+            lastTurn = Right;
+            move(Right);
+            break;
+        // Center IR detects a black line
+        case 0b101:
+            move(Forward);
+            break;
+        // Right IR detects a black line
+        case 0b110:
+            lastTurn = Right;
+            move(Right);
+            break;
+        // No line detected
+        case 0b111:
+            
+            isEndReached = scan(lastTurn);
+            
+            break;
         }
     }
     
@@ -789,18 +840,18 @@ void updateCoordinate(uint8_t cardinalDirection, uint8_t &x, uint8_t &y)
 {
     switch (cardinalDirection)
     {
-        case North:
-            ++y;
-            break;
-        case South:
-            --y;
-            break;
-        case West:
-            --x;
-            break;
-        case East:
-            ++x;
-            break;
+    case North:
+        ++y;
+        break;
+    case South:
+        --y;
+        break;
+    case West:
+        --x;
+        break;
+    case East:
+        ++x;
+        break;
     }
 }
 
