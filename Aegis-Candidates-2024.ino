@@ -134,6 +134,9 @@ void setup()
     pinMode(IN3, OUTPUT);
     pinMode(IN4, OUTPUT);
     
+    pinMode(ENA, OUTPUT);
+    pinMode(ENB, OUTPUT);
+    
     turnOffMotors();
     
     #if ENABLE_ENCODER
