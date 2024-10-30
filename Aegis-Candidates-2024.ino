@@ -528,8 +528,6 @@ bool scan(Direction &lastTurn)
         }
     }
     
-    // It is supposed that we need to stop here
-    // However, I am not sure if we have the correct appproach.
     turnOffMotors();
     
     bool lineIsLocatedFirstSide = false;
