@@ -1,3 +1,8 @@
+/**
+ * Azimuth.h - Library used to define cardinal directions.
+ * Autor: Angel Eduardo López.
+ */
+
 #ifndef AZIMUTH_H
 #define AZIMUTH_H
 
