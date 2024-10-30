@@ -89,7 +89,8 @@ bool isWallInRight();
 void openGripper();
 void closeGripper();
 // LED
-void turnOnLED(Colors color = BLACK);
+void turnOnLED(Colors color);
+void turnOffLED();
 // Zones
 void detectZone();
 void zoneA();
@@ -384,7 +385,7 @@ void closeGripper()
 
 /// LED
 
-void turnOnLED(Colors color = BLACK)
+void turnOnLED(Colors color)
 {
     // Asociate the color identificated with a certain partern of the LED
     switch (color)
@@ -419,6 +420,11 @@ void turnOnLED(Colors color = BLACK)
         digitalWrite(LED_BLUE_PIN, LOW);
         break;
     }
+}
+
+void turnOffLED()
+{
+    turnOnLED(BLACK);
 }
 
 /// Zones
@@ -867,5 +873,6 @@ void seesaw()
 void halt()
 {
     turnOffMotors();
+    turnOffLED();
     for (;;);
 }
