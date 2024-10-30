@@ -15,30 +15,6 @@
 #define DEBUG true
 #define ENABLE_ENCODER false
 
-/// Functions
-
-// Color
-
-Colors readColor();
-
-// Motor
-
-void stepForward();
-void stepBack();
-
-void turnRight();
-void turnLeft();
-
-// Zones
-
-void detectZone();
-void zoneA();
-void zoneB();
-void zoneC();
-void seesaw();
-
-void halt();
-
 /// Variables
 
 // Ultrasonic
@@ -58,13 +34,6 @@ static const uint8_t WALL_OFFSET = 15;
 Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
     TCS34725_INTEGRATIONTIME_600MS,
     TCS34725_GAIN_4X);
-
-static const uint8_t RED_MIN = 80;
-static const uint8_t RED_MAX = 255;
-static const uint8_t GREEN_MIN = 80;
-static const uint8_t GREEN_MAX = 255;
-static const uint8_t BLUE_MIN = 80;
-static const uint8_t BLUE_MAX = 255;
 
 // Infrared
 
@@ -104,6 +73,8 @@ static const uint8_t BASE_SPEED = 50;
 static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 2000;
 static const uint16_t TIME_TO_TURN = 2000;
 
+#if ENABLE_ENCODER
+
 // Encoder
 
 static const uint8_t LEFT_ENCODER_PIN = 2;
@@ -116,6 +87,41 @@ static const uint8_t NUMBER_OF_TEETH = 16;
 static const uint16_t DISTANCE_OF_CENTER_TO_WHEEL = 10;
 static const uint8_t WHEEL_RADIUS = 13;
 static const uint16_t SIDE_OF_UNIT = 30;
+
+#endif
+
+/// Function Prototype
+
+// Motors
+void move(Direction dir, uint8_t speed = BASE_SPEED);
+void stepForward();
+void stepBack();
+void turnRight();
+void turnLeft();
+inline void turnOffMotors();
+// Encoder
+void startUsingEncoder();
+void leftEncoder();
+void rightEncoder();
+// Color sensor
+Colors readColor();
+// Ultrasonic
+bool isWallInLeft();
+bool isWallInFront();
+bool isWallInRight();
+// Servo
+void openGripper();
+void closeGripper();
+// Zones
+void detectZone();
+void zoneA();
+void zoneB();
+bool scan(Direction &lastTurn);
+void zoneC();
+void updateCoordinate(uint8_t cardinalDirection, uint8_t &x, uint8_t &y);
+void seesaw();
+// Turn off
+void halt();
 
 /// Main program
 
@@ -152,9 +158,9 @@ void setup()
     
     turnOffMotors();
     
-    // Encoder
-    
     #if ENABLE_ENCODER
+    
+    // Encoder
     
     pinMode(LEFT_ENCODER_PIN, INPUT);
     pinMode(RIGHT_ENCODER_PIN, INPUT);
@@ -309,6 +315,8 @@ inline void turnOffMotors()
     move(Standing, 0);
 }
 
+#if ENABLE_ENCODER
+
 /// Encoder
 
 void startUsingEncoder()
@@ -329,6 +337,8 @@ void rightEncoder()
 {
     ++rightEncoderCounter;
 }
+
+#endif
 
 /// Color sensor
 
