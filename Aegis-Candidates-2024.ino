@@ -641,21 +641,7 @@ void zoneC()
         
         // Move coordinate
         
-        switch (cardinalDirection)
-        {
-            case North:
-                ++coordinateY;
-                break;
-            case South:
-                --coordinateY;
-                break;
-            case West:
-                --coordinateX;
-                break;
-            case East:
-                ++coordinateX;
-                break;
-        }
+        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
         
         stepForward();
         stepForward();
@@ -663,23 +649,9 @@ void zoneC()
     else if (!isWallInFront())
     {
         // Go forward
-        // And move coordinate
+        // And update coordinate
         
-        switch (cardinalDirection)
-        {
-            case North:
-                ++coordinateY;
-                break;
-            case South:
-                --coordinateY;
-                break;
-            case West:
-                --coordinateX;
-                break;
-            case East:
-                ++coordinateX;
-                break;
-        }
+        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
         
         stepForward();
         stepForward();
@@ -710,9 +682,28 @@ void zoneC()
     
 }
 
+void updateCoordinate(uint8_t cardinalDirection, uint8_t &x, uint8_t &y)
+{
+    switch (cardinalDirection)
+    {
+        case North:
+            ++y;
+            break;
+        case South:
+            --y;
+            break;
+        case West:
+            --x;
+            break;
+        case East:
+            ++x;
+            break;
+    }
+}
+
 void seesaw()
 {
-    
+    // I honestly don't know how we can approach this without the gyro.
 }
 
 void halt()
