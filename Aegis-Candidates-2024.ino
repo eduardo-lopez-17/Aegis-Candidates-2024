@@ -409,7 +409,108 @@ void detectZone()
 
 void zoneA()
 {
-    // stepForward();
+    // We have to run around the center, then we procede to "grab the ball"
+    // I don't think we can make the servo work, nor we have time for that.
+    // But yeah whatever.
+    
+    // Size of the map
+    const uint8_t sizeX = 3; // Size of 3
+    const uint8_t sizeY = 5; // Size of 6
+    
+    // Initial coordinates in the plane
+    uint8_t coordinateX = 1;
+    uint8_t coordinateY = 0;
+    
+    // Default facing
+    uint8_t cardinalDirection = North;
+    
+    bool lookForEnd = false;
+    
+    updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+    stepForward();
+    stepForward();
+    
+    cardinalDirection = (cardinalDirection - 1) % 4;
+    turnLeft();
+    
+    // Using the right hand method to find the center
+    if (!isWallInRight())
+    {
+        // Go right
+        
+        // Rotate the view to 90 degrees to the right
+        cardinalDirection = (cardinalDirection + 1) % 4;
+        turnRight();
+        
+        // Move coordinate
+        
+        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+        
+        if (coordinateX == 1 & coordinateY == 2)
+        {
+            // Seems we have found the place of the ball
+            stepForward();
+            
+            // Do some magic with the servo and get the ball
+            closeGripper();
+            delay(1000);
+            
+            updateCoordinate((cardinalDirection + 2) % 4, coordinateX, coordinateY);
+            stepBack();
+            
+            cardinalDirection = (cardinalDirection - 1) % 4;
+            turnLeft();
+            
+            // Release ball
+            openGripper();
+            delay(1000);
+            
+            cardinalDirection = (cardinalDirection + 1) % 4;
+            turnRight();
+            cardinalDirection = (cardinalDirection + 1) % 4;
+            turnRight();
+            
+            updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+            
+            stepForward();
+            stepForward();
+            
+            // Now we have to look for the end zone now
+            lookForEnd = true;
+        }
+        else
+        {
+            stepForward();
+            stepForward();
+        }
+    }
+    else if (!isWallInFront())
+    {
+        // Go forward
+        // And update coordinate
+        
+        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+        
+        stepForward();
+        stepForward();
+    }
+    else
+    {
+        // Turn left
+        
+        // Rotate the view to 90 degrees to the left
+        cardinalDirection = (cardinalDirection - 1) % 4;
+        turnLeft();
+    }
+    
+    if (lookForEnd)
+    {
+        if (coordinateX == 2 & coordinateY == 4)
+        {
+            // Done!
+            halt();
+        }
+    }
 }
 
 void zoneB()
@@ -618,7 +719,7 @@ void zoneC()
 {
     // We are going to make a laberynth solver
     
-    // Size of the map minus 1
+    // Size of the map
     const uint8_t sizeX = 3; // Size of 3 really
     const uint8_t sizeY = 6; // Size of 6 really
     
