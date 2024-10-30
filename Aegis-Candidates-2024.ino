@@ -7,8 +7,9 @@
 #include "NewPing.h"
 #include "Adafruit_TCS34725.h"
 
-#include "lib/Colors.h"
-#include "lib/Azimuth.h"
+#include "lib/colors.h"
+#include "lib/azimuth.h"
+#include "lib/pin_definitions.h"
 
 /// Defines
 
@@ -18,10 +19,6 @@
 /// Variables
 
 // Ultrasonic
-
-static const uint8_t FRONT_ULTRASONIC_PIN = 10;
-static const uint8_t LEFT_ULTRASONIC_PIN = 11;
-static const uint8_t RIGHT_ULTRASONIC_PIN = 12;
 
 NewPing frontUltrasonic = NewPing(FRONT_ULTRASONIC_PIN, FRONT_ULTRASONIC_PIN);
 NewPing leftUltrasonic = NewPing(LEFT_ULTRASONIC_PIN, LEFT_ULTRASONIC_PIN);
@@ -35,26 +32,11 @@ Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
     TCS34725_INTEGRATIONTIME_600MS,
     TCS34725_GAIN_4X);
 
-// Infrared
-
-static const uint8_t WEST_IR_PIN = A0;
-static const uint8_t NORTH_IR_PIN = A1;
-static const uint8_t EAST_IR_PIN = A2;
-
 // Servo
 
-static const uint8_t GRIPPER_PIN = 9;
 static Servo gripper;
 
 // Motor
-
-static const uint8_t IN1 = 2;
-static const uint8_t IN2 = 3;
-static const uint8_t IN3 = 4;
-static const uint8_t IN4 = 7;
-
-static const uint8_t ENA = 5;
-static const uint8_t ENB = 6;
 
 enum Direction {
     Forward = 0,
@@ -74,9 +56,6 @@ static const uint16_t TIME_TO_TURN = 2000;
 
 // Encoder
 
-static const uint8_t LEFT_ENCODER_PIN = 2;
-static const uint8_t RIGHT_ENCODER_PIN = 3;
-
 static uint16_t leftEncoderCounter = 0;
 static uint16_t rightEncoderCounter = 0;
 
@@ -86,12 +65,6 @@ static const uint8_t WHEEL_RADIUS = 13;
 static const uint16_t SIDE_OF_UNIT = 30;
 
 #endif
-
-// LED
-
-static const uint8_t LED_RED_PIN = 8;
-static const uint8_t LED_GREEN_PIN = 13;
-static const uint8_t LED_BLUE_PIN = A3;
 
 /// Function Prototype
 
@@ -116,7 +89,7 @@ bool isWallInRight();
 void openGripper();
 void closeGripper();
 // LED
-void turnOnLED(Colors color);
+void turnOnLED(Colors color = BLACK);
 // Zones
 void detectZone();
 void zoneA();
