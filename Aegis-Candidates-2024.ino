@@ -19,7 +19,7 @@
 
 // Color
 
-Color readColor();
+Colors readColor();
 
 // Motor
 
@@ -121,6 +121,28 @@ static const uint16_t SIDE_OF_UNIT = 30;
 
 void setup()
 {
+    /// Variable definitions
+    
+    RED_RGB.red = 167;
+    RED_RGB.green = 67;
+    RED_RGB.blue = 167;
+    
+    GREEN_RGB.red = 90;
+    GREEN_RGB.green = 114;
+    GREEN_RGB.blue = 90;
+    
+    YELLOW_RGB.red = 128;
+    YELLOW_RGB.green = 94;
+    YELLOW_RGB.blue = 128;
+    
+    MAGENTA_RGB.red = 150;
+    MAGENTA_RGB.green = 57;
+    MAGENTA_RGB.blue = 150;
+    
+    PURPLE_RGB.red = 92;
+    PURPLE_RGB.green = 86;
+    PURPLE_RGB.blue = 92;
+    
     // Motor
     
     pinMode(IN1, OUTPUT);
@@ -163,9 +185,9 @@ void setup()
 void loop()
 {
     // detectZone();
-    zoneB();
-    // readColor();
-    // delay(100);
+    // zoneB();
+    readColor();
+    delay(100);
 }
 
 /// Motor
@@ -310,37 +332,13 @@ void rightEncoder()
 
 /// Color sensor
 
-Color readColor()
+Colors readColor()
 {
     float red, green, blue = 0;
-    // Take 5 samples
-    // for (uint8_t i = 0; i < 5; ++i)
-    // {
-    //     float r, g, b = 0;
-    //     sensorColor.getRGB(&r, &g, &b);
-    //     red += r;
-    //     green += g;
-    //     blue += b;
-    // }
-    
-    // // Average
-    // red /= 5;
-    // green /= 5;
-    // blue /= 5;
     
     sensorColor.getRGB(&red, &green, &blue);
     
-    // const int16_t r = constrain(map(red, RED_MIN, RED_MAX, 0, 255), 0, 255);
-    // const int16_t g = constrain(map(green, GREEN_MIN, GREEN_MAX, 0, 255), 0, 255);
-    // const int16_t b = constrain(map(blue, BLUE_MIN, BLUE_MAX, 0, 255), 0, 255);
-    
-    
-    
     Color color;
-    // color.red = r;
-    // color.green = g;
-    // color.blue = b;
-    
     color.red = red;
     color.green = green;
     color.blue = blue;
@@ -348,9 +346,9 @@ Color readColor()
     Serial.println("Colors");
     Serial.println(color.red);
     Serial.println(color.green);
-    Serial.println(color.red); 
+    Serial.println(color.blue); 
     
-    return color;
+    return identifyColor(color);
 }
 
 /// Ultrasonic
@@ -386,24 +384,25 @@ void closeGripper()
 
 void detectZone()
 {
-    struct Color color = readColor();
+    Colors color = readColor();
     
     // Do some analysis
     
     // We mainly need to detect 2 colors blue and green I guess
     // If none then it should be zone B
     
-    if (color.blue > color.green & color.blue > color.red)
+    switch (color)
     {
-        zoneC();
-    }
-    else if (color.green > color.blue & color.green > color.red)
-    {
+    case GREEN:
         zoneA();
-    }
-    else
-    {
+        break;
+    case BLUE:
+        zoneC();
+        break;
+    
+    default:
         zoneB();
+        break;
     }
 }
 
