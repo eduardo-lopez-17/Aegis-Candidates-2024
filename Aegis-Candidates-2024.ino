@@ -670,6 +670,34 @@ bool scan(Direction &lastTurn)
     
     turnOffMotors();
     
+    // Direction side = Left;
+    
+    // for (uint8_t i = 0; i < 2; ++i)
+    // {
+    //     bool lineIsLocatedThisSide = false;
+    //     move(firstSide);
+        
+    //     unsigned long initialTime = millis();
+    //     // In miliseconds
+    //     const unsigned long finalTime = 1000;
+        
+    //     while (millis() - initialTime <= finalTime)
+    //     {
+    //         if (!digitalRead(WEST_IR_PIN)) return false;
+    //         if (!digitalRead(NORTH_IR_PIN)) return false;
+    //         if (!digitalRead(EAST_IR_PIN)) return false;
+    //     }
+        
+    //     move(Standing);
+    //     delay(100);
+        
+    //     // Move back
+    //     side = (side == Left) ? Right : Left;
+        
+    //     move(side);
+    //     delay(finalTime);
+    // }
+    
     bool lineIsLocatedFirstSide = false;
     lastTurn = firstSide;
     move(firstSide);
