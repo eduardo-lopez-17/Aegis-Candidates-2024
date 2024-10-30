@@ -779,16 +779,6 @@ void zoneC()
         // Done!
         halt();
     }
-    
-    // Color color = readColor();
-    
-    // if (color.red >= color.blue & color.red >= color.green)
-    // {
-    //     // We are finished
-        
-    //     halt();
-    // }
-    
 }
 
 void updateCoordinate(uint8_t cardinalDirection, uint8_t &x, uint8_t &y)
