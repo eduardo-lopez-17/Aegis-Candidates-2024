@@ -89,8 +89,8 @@ bool isWallInRight();
 void openGripper();
 void closeGripper();
 // LED
-void turnOnLED(Colors color);
-void turnOffLED();
+bool turnOnLED(Colors color);
+inline void turnOffLED();
 // Zones
 void detectZone();
 void zoneA();
@@ -385,7 +385,8 @@ void closeGripper()
 
 /// LED
 
-void turnOnLED(Colors color)
+// Returns true if the color was defined, otherwise false
+bool turnOnLED(Colors color)
 {
     // Asociate the color identificated with a certain partern of the LED
     switch (color)
@@ -418,11 +419,13 @@ void turnOnLED(Colors color)
         digitalWrite(LED_RED_PIN, LOW);
         digitalWrite(LED_GREEN_PIN, LOW);
         digitalWrite(LED_BLUE_PIN, LOW);
-        break;
+        return false;
     }
+    
+    return true;
 }
 
-void turnOffLED()
+inline void turnOffLED()
 {
     turnOnLED(BLACK);
 }
@@ -819,6 +822,10 @@ void zoneC()
         
         stepForward();
         stepForward();
+        
+        Colors color = readColor();
+        
+        bool isLEDDisplayed = turnOnLED(color);
     }
     else if (!isWallInFront())
     {
