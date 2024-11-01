@@ -1,5 +1,5 @@
 /**
- * Colors.h - Library used to define and simplify colors identification.
+ * colors.h - Library used to define and simplify colors identification.
  * Autor: Angel Eduardo López.
  */
 

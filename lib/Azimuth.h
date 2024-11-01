@@ -1,5 +1,5 @@
 /**
- * Azimuth.h - Library used to define cardinal directions.
+ * azimuth.h - Library used to define cardinal directions.
  * Autor: Angel Eduardo López.
  */
 
