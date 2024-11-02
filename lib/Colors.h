@@ -26,7 +26,8 @@ enum Colors
     BROWN,
     GRAY,
     BLACK,
-    WHITE
+    WHITE,
+    NO_COLOR
 };
 
 // Structs
@@ -55,7 +56,7 @@ static Color PURPLE_RGB;
 bool isInRange(uint8_t value, uint8_t ref)
 {
     // In %
-    const float ERROR_MARGIN = 0.2;
+    const float ERROR_MARGIN = 0.1;
     const uint8_t HIGH_MARGIN = (uint8_t)constrain(float(ref * (1 + ERROR_MARGIN)), 0, 255);
     const uint8_t LOW_MARGIN = (uint8_t)constrain(float(ref * (1 - ERROR_MARGIN)), 0, 255);
     
@@ -93,6 +94,8 @@ Colors identifyColor(Color color)
     {
         return PURPLE;
     }
+    
+    return NO_COLOR;
 }
 
 #endif

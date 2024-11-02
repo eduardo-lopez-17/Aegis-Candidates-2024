@@ -29,7 +29,7 @@ static const uint8_t WALL_OFFSET = 15;
 // Color
 
 Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_600MS,
+    TCS34725_INTEGRATIONTIME_540MS,
     TCS34725_GAIN_4X);
 
 // Servo
@@ -47,10 +47,10 @@ enum Direction {
 };
 
 static Direction direction = Standing;
-static const uint8_t BASE_SPEED = 50;
+static const uint8_t BASE_SPEED = 70;
 
 static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 2000;
-static const uint16_t TIME_TO_TURN = 2000;
+static const uint16_t TIME_TO_TURN = 1000;
 
 #if ENABLE_ENCODER
 
@@ -112,21 +112,21 @@ void setup()
     RED_RGB.green = 67;
     RED_RGB.blue = 167;
     
-    GREEN_RGB.red = 90;
-    GREEN_RGB.green = 114;
-    GREEN_RGB.blue = 90;
+    GREEN_RGB.red = 84;
+    GREEN_RGB.green = 106;
+    GREEN_RGB.blue = 54;
     
-    YELLOW_RGB.red = 128;
-    YELLOW_RGB.green = 94;
-    YELLOW_RGB.blue = 128;
+    YELLOW_RGB.red = 76;
+    YELLOW_RGB.green = 91;
+    YELLOW_RGB.blue = 78;
     
-    MAGENTA_RGB.red = 150;
-    MAGENTA_RGB.green = 57;
-    MAGENTA_RGB.blue = 150;
+    MAGENTA_RGB.red = 102;
+    MAGENTA_RGB.green = 72;
+    MAGENTA_RGB.blue = 67;
     
-    PURPLE_RGB.red = 92;
-    PURPLE_RGB.green = 86;
-    PURPLE_RGB.blue = 92;
+    PURPLE_RGB.red = 148;
+    PURPLE_RGB.green = 142;
+    PURPLE_RGB.blue = 156;
     
     // Motor
     
@@ -182,11 +182,41 @@ void setup()
 
 void loop()
 {
-    // zoneB();
-    // readColor();
+    if (Serial.available())
+    {
+        Serial.read();
+        // zoneB();
+        
+        Serial.print("Front ultrasonic ");
+        Serial.println(frontUltrasonic.ping_cm());
+        Serial.print("Left ultrasonic ");
+        Serial.println(leftUltrasonic.ping_cm());
+    }
+    
+    // Serial.print("Front ultrasonic ");
+    // Serial.println(frontUltrasonic.ping_cm());
+    // Serial.print("Left ultrasonic ");
+    // Serial.println(leftUltrasonic.ping_cm());
+    // Serial.print("Right ultrasonic ");
+    // Serial.println(rightUltrasonic.ping_cm());
+    
+    // turnOnLED(RED);
+    // delay(500);
+    // turnOnLED(GREEN);
+    // delay(500);
+    // turnOnLED(BLUE);
+    // delay(500);
+    
+    // turnRight();
+    // halt();
+    
+    // delay(1000);
+    
+    zoneB();
+    // turnOnLED(readColor());
     // delay(100);
     
-    detectZone();
+    // detectZone();
 }
 
 /// Motor
@@ -204,7 +234,7 @@ void move(Direction dir, uint8_t speed = BASE_SPEED)
                 digitalWrite(IN2, LOW);
                 digitalWrite(IN3, HIGH);
                 digitalWrite(IN4, LOW);
-                Serial.println("Forward");
+                Serial.println("Forward");  
                 break;
             case Backwards:
                 digitalWrite(IN1, LOW);
@@ -214,17 +244,17 @@ void move(Direction dir, uint8_t speed = BASE_SPEED)
                 Serial.println("Backwards");
                 break;
             case Left:
-                digitalWrite(IN1, HIGH);
-                digitalWrite(IN2, LOW);
-                digitalWrite(IN3, LOW);
-                digitalWrite(IN4, HIGH);
-                Serial.println("Left");
-                break;
-            case Right:
                 digitalWrite(IN1, LOW);
                 digitalWrite(IN2, HIGH);
                 digitalWrite(IN3, HIGH);
                 digitalWrite(IN4, LOW);
+                Serial.println("Left");
+                break;
+            case Right:
+                digitalWrite(IN1, HIGH);
+                digitalWrite(IN2, LOW);
+                digitalWrite(IN3, LOW);
+                digitalWrite(IN4, HIGH);
                 Serial.println("Right");
                 break;
             
@@ -575,11 +605,11 @@ void zoneB()
         const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN);
         
         // Concatenate bits
-        const byte IR_BYTES = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
+        const byte IR_BYTE = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
         
         // Serial.println(IR_BYTES, BIN);
         
-        switch (IR_BYTES)
+        switch (IR_BYTE)
         {
         // All IRs detect a black line
         case 0b000:
@@ -679,117 +709,118 @@ bool scan(Direction &lastTurn)
     
     turnOffMotors();
     
-    // Direction side = Left;
+    Direction side = firstSide;
     
-    // for (uint8_t i = 0; i < 2; ++i)
+    for (uint8_t i = 0; i < 2; ++i)
+    {
+        lastTurn = side;
+        bool lineIsLocatedThisSide = false;
+        move(side);
+        
+        unsigned long initialTime = millis();
+        // In miliseconds
+        const unsigned long finalTime = 1000;
+        
+        while (millis() - initialTime <= finalTime)
+        {
+            if (!digitalRead(WEST_IR_PIN)) return false;
+            if (!digitalRead(NORTH_IR_PIN)) return false;
+            if (!digitalRead(EAST_IR_PIN)) return false;
+        }
+        
+        move(Standing);
+        delay(100);
+        
+        // Move back
+        side = (side == Left) ? Right : Left;
+        
+        move(side);
+        delay(finalTime);
+    }
+    
+    // bool lineIsLocatedFirstSide = false;
+    // lastTurn = firstSide;
+    // move(firstSide);
+    
+    // unsigned long initialTime = millis();
+    // // In miliseconds
+    // const unsigned long finalTime = 1000;
+    
+    // while (millis() - initialTime <= finalTime)
     // {
-    //     bool lineIsLocatedThisSide = false;
-    //     move(firstSide);
-        
-    //     unsigned long initialTime = millis();
-    //     // In miliseconds
-    //     const unsigned long finalTime = 1000;
-        
-    //     while (millis() - initialTime <= finalTime)
+    //     if (!digitalRead(WEST_IR_PIN))
     //     {
-    //         if (!digitalRead(WEST_IR_PIN)) return false;
-    //         if (!digitalRead(NORTH_IR_PIN)) return false;
-    //         if (!digitalRead(EAST_IR_PIN)) return false;
+    //         lineIsLocatedFirstSide = true;
+    //         break;
     //     }
         
-    //     move(Standing);
-    //     delay(100);
+    //     if (!digitalRead(NORTH_IR_PIN))
+    //     {
+    //         lineIsLocatedFirstSide = true;
+    //         break;
+    //     }
         
-    //     // Move back
-    //     side = (side == Left) ? Right : Left;
-        
-    //     move(side);
-    //     delay(finalTime);
+    //     if (!digitalRead(EAST_IR_PIN))
+    //     {
+    //         lineIsLocatedFirstSide = true;
+    //         break;
+    //     }
     // }
     
-    bool lineIsLocatedFirstSide = false;
-    lastTurn = firstSide;
-    move(firstSide);
+    // move(Standing);
     
-    unsigned long initialTime = millis();
-    // In miliseconds
-    const unsigned long finalTime = 1000;
+    // delay(100);
     
-    while (millis() - initialTime <= finalTime)
-    {
-        if (!digitalRead(WEST_IR_PIN))
-        {
-            lineIsLocatedFirstSide = true;
-            break;
-        }
+    // // We should continue with the code
+    // if (lineIsLocatedFirstSide) return false;
+    
+    // // Move back
+    // lastTurn = SecondSide;
+    // move(SecondSide);
+    
+    // delay(finalTime);
+    
+    // Serial.println("Scanning Right");
+    
+    // bool lineIsLocatedSecondSide = false;
+    // initialTime = millis();
+    
+    // while (millis() - initialTime <= finalTime)
+    // {
+    //     if (!digitalRead(WEST_IR_PIN))
+    //     {
+    //         lineIsLocatedSecondSide = true;
+    //         break;
+    //     }
         
-        if (!digitalRead(NORTH_IR_PIN))
-        {
-            lineIsLocatedFirstSide = true;
-            break;
-        }
+    //     if (!digitalRead(NORTH_IR_PIN))
+    //     {
+    //         lineIsLocatedSecondSide = true;
+    //         break;
+    //     }
         
-        if (!digitalRead(EAST_IR_PIN))
-        {
-            lineIsLocatedFirstSide = true;
-            break;
-        }
-    }
+    //     if (!digitalRead(EAST_IR_PIN))
+    //     {
+    //         lineIsLocatedSecondSide = true;
+    //         break;
+    //     }
+    // }
     
-    move(Standing);
+    // move(Standing);
     
-    delay(100);
+    // delay(100);
     
-    // We should continue with the code
-    if (lineIsLocatedFirstSide) return false;
+    // lastTurn = firstSide;
+    // move(firstSide);
     
-    // Move back
-    lastTurn = SecondSide;
-    move(SecondSide);
-    
-    delay(finalTime);
-    
-    Serial.println("Scanning Right");
-    
-    bool lineIsLocatedSecondSide = false;
-    initialTime = millis();
-    
-    while (millis() - initialTime <= finalTime)
-    {
-        if (!digitalRead(WEST_IR_PIN))
-        {
-            lineIsLocatedSecondSide = true;
-            break;
-        }
-        
-        if (!digitalRead(NORTH_IR_PIN))
-        {
-            lineIsLocatedSecondSide = true;
-            break;
-        }
-        
-        if (!digitalRead(EAST_IR_PIN))
-        {
-            lineIsLocatedSecondSide = true;
-            break;
-        }
-    }
-    
-    move(Standing);
-    
-    delay(100);
-    
-    lastTurn = firstSide;
-    move(firstSide);
-    
-    delay(finalTime);
+    // delay(finalTime);
     
     move(Standing);
     
     // Yeah we are done with this zone
-    if (!lineIsLocatedSecondSide) return true;
+    // if (!lineIsLocatedSecondSide) return true;
     
-    return false;
+    return true;
 }
 
 void zoneC()
