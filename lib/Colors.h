@@ -53,6 +53,29 @@ static Color YELLOW_RGB;
 static Color MAGENTA_RGB;
 static Color PURPLE_RGB;
 
+void initializeColorDefinitions()
+{
+    RED_RGB.red = 167;
+    RED_RGB.green = 67;
+    RED_RGB.blue = 167;
+    
+    GREEN_RGB.red = 84;
+    GREEN_RGB.green = 106;
+    GREEN_RGB.blue = 54;
+    
+    YELLOW_RGB.red = 76;
+    YELLOW_RGB.green = 91;
+    YELLOW_RGB.blue = 78;
+    
+    MAGENTA_RGB.red = 102;
+    MAGENTA_RGB.green = 72;
+    MAGENTA_RGB.blue = 67;
+    
+    PURPLE_RGB.red = 148;
+    PURPLE_RGB.green = 142;
+    PURPLE_RGB.blue = 156;
+}
+
 bool isInRange(uint8_t value, uint8_t ref)
 {
     // In %

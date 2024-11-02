@@ -11,46 +11,29 @@
 #include "lib/azimuth.h"
 #include "lib/pin_definitions.h"
 
+#include "lib/motor.h"
+#include "lib/ultrasonic.h"
+#include "lib/servo_controller.h"
+#include "lib/ir.h"
+#include "lib/led.h"
+#include "lib/sensor_color.h"
+
 /// Defines
 
 #define DEBUG true
 #define ENABLE_ENCODER false
 
-/// Variables
+/// Structs
 
-// Ultrasonic
-
-NewPing frontUltrasonic = NewPing(FRONT_ULTRASONIC_PIN, FRONT_ULTRASONIC_PIN);
-NewPing leftUltrasonic = NewPing(LEFT_ULTRASONIC_PIN, LEFT_ULTRASONIC_PIN);
-NewPing rightUltrasonic = NewPing(RIGHT_ULTRASONIC_PIN, RIGHT_ULTRASONIC_PIN);
-
-static const uint8_t WALL_OFFSET = 15;
-
-// Color
-
-Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_540MS,
-    TCS34725_GAIN_4X);
-
-// Servo
-
-static Servo gripper;
-
-// Motor
-
-enum Direction {
-    Forward = 0,
-    Backwards,
-    Left,
-    Right,
-    Standing
+struct Coordinate
+{
+    uint8_t x;
+    uint8_t y;
 };
 
-static Direction direction = Standing;
-static const uint8_t BASE_SPEED = 70;
+/// Variables
 
-static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 2000;
-static const uint16_t TIME_TO_TURN = 1000;
+
 
 #if ENABLE_ENCODER
 
@@ -68,29 +51,37 @@ static const uint16_t SIDE_OF_UNIT = 30;
 
 /// Function Prototype
 
+// Color definitions
+void initializeColorDefinitions();
 // Motors
 void move(Direction dir, uint8_t speed = BASE_SPEED);
+inline void turnOffMotors();
 void stepForward();
 void stepBack();
 void turnRight();
 void turnLeft();
-inline void turnOffMotors();
+void initializeMotor();
 // Encoder
 void startUsingEncoder();
 void leftEncoder();
 void rightEncoder();
 // Color sensor
+void initializeSensorColor();
 Colors readColor();
 // Ultrasonic
 bool isWallInLeft();
 bool isWallInFront();
 bool isWallInRight();
+// IR
+void initializeIR();
+byte readIRs();
 // Servo
 void openGripper();
 void closeGripper();
 // LED
 bool turnOnLED(Colors color);
 inline void turnOffLED();
+void initializeLED();
 // Zones
 void detectZone();
 void zoneA();
@@ -106,39 +97,9 @@ void halt();
 
 void setup()
 {
-    /// Variable definitions
+    initializeColorDefinitions();
     
-    RED_RGB.red = 167;
-    RED_RGB.green = 67;
-    RED_RGB.blue = 167;
-    
-    GREEN_RGB.red = 84;
-    GREEN_RGB.green = 106;
-    GREEN_RGB.blue = 54;
-    
-    YELLOW_RGB.red = 76;
-    YELLOW_RGB.green = 91;
-    YELLOW_RGB.blue = 78;
-    
-    MAGENTA_RGB.red = 102;
-    MAGENTA_RGB.green = 72;
-    MAGENTA_RGB.blue = 67;
-    
-    PURPLE_RGB.red = 148;
-    PURPLE_RGB.green = 142;
-    PURPLE_RGB.blue = 156;
-    
-    // Motor
-    
-    pinMode(IN1, OUTPUT);
-    pinMode(IN2, OUTPUT);
-    pinMode(IN3, OUTPUT);
-    pinMode(IN4, OUTPUT);
-    
-    pinMode(ENA, OUTPUT);
-    pinMode(ENB, OUTPUT);
-    
-    turnOffMotors();
+    initializeMotor();
     
     #if ENABLE_ENCODER
     
@@ -152,29 +113,15 @@ void setup()
     
     #endif
     
-    // IR
-    
-    pinMode(WEST_IR_PIN, INPUT);
-    pinMode(NORTH_IR_PIN, INPUT);
-    pinMode(EAST_IR_PIN, INPUT);
+    initializeIR();
     
     // Servo
     
     gripper.attach(GRIPPER_PIN);
     
-    // Color sensor
+    initializeSensorColor();
     
-    sensorColor.begin();
-    
-    // LED
-    
-    pinMode(LED_RED_PIN, OUTPUT);
-    pinMode(LED_GREEN_PIN, OUTPUT);
-    pinMode(LED_BLUE_PIN, OUTPUT);
-    
-    digitalWrite(LED_RED_PIN, LOW);
-    digitalWrite(LED_GREEN_PIN, LOW);
-    digitalWrite(LED_BLUE_PIN, LOW);
+    initializeLED();
     
     Serial.begin(9600);
     Serial.println("Working");
@@ -182,160 +129,11 @@ void setup()
 
 void loop()
 {
-    if (Serial.available())
-    {
-        Serial.read();
-        // zoneB();
-        
-        Serial.print("Front ultrasonic ");
-        Serial.println(frontUltrasonic.ping_cm());
-        Serial.print("Left ultrasonic ");
-        Serial.println(leftUltrasonic.ping_cm());
-    }
+    // zoneB();
     
-    // Serial.print("Front ultrasonic ");
-    // Serial.println(frontUltrasonic.ping_cm());
-    // Serial.print("Left ultrasonic ");
-    // Serial.println(leftUltrasonic.ping_cm());
-    // Serial.print("Right ultrasonic ");
-    // Serial.println(rightUltrasonic.ping_cm());
-    
-    // turnOnLED(RED);
-    // delay(500);
-    // turnOnLED(GREEN);
-    // delay(500);
-    // turnOnLED(BLUE);
-    // delay(500);
-    
-    // turnRight();
-    // halt();
+    detectZone();
     
     // delay(1000);
-    
-    zoneB();
-    // turnOnLED(readColor());
-    // delay(100);
-    
-    // detectZone();
-}
-
-/// Motor
-
-void move(Direction dir, uint8_t speed = BASE_SPEED)
-{
-    if (direction != dir)
-    {
-        direction = dir;
-        
-        switch (direction)
-        {
-            case Forward:
-                digitalWrite(IN1, HIGH);
-                digitalWrite(IN2, LOW);
-                digitalWrite(IN3, HIGH);
-                digitalWrite(IN4, LOW);
-                Serial.println("Forward");  
-                break;
-            case Backwards:
-                digitalWrite(IN1, LOW);
-                digitalWrite(IN2, HIGH);
-                digitalWrite(IN3, LOW);
-                digitalWrite(IN4, HIGH);
-                Serial.println("Backwards");
-                break;
-            case Left:
-                digitalWrite(IN1, LOW);
-                digitalWrite(IN2, HIGH);
-                digitalWrite(IN3, HIGH);
-                digitalWrite(IN4, LOW);
-                Serial.println("Left");
-                break;
-            case Right:
-                digitalWrite(IN1, HIGH);
-                digitalWrite(IN2, LOW);
-                digitalWrite(IN3, LOW);
-                digitalWrite(IN4, HIGH);
-                Serial.println("Right");
-                break;
-            
-            default:
-                digitalWrite(IN1, LOW);
-                digitalWrite(IN2, LOW);
-                digitalWrite(IN3, LOW);
-                digitalWrite(IN4, LOW);
-                Serial.println("Not moving");
-                break;
-        }
-    }
-    
-    analogWrite(ENA, speed);
-    analogWrite(ENB, speed);
-}
-
-void stepForward()
-{
-    #if ENABLE_ENCODER
-    
-    leftEncoderCounter = 0;
-    rightEncoderCounter = 0;
-    
-    attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN), leftEncoder, RISING);
-    attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN), rightEncoder, RISING);
-    
-    #endif
-    
-    move(Forward);
-    
-    #if ENABLE_ENCODER
-    
-    float distanceElapsed = 0;
-    
-    while (distanceElapsed >= SIDE_OF_UNIT / 2)
-    {
-        float turns = leftEncoderCounter / NUMBER_OF_TEETH;
-        float diameter = WHEEL_RADIUS * 2 * PI;
-        distanceElapsed = turns * diameter;
-        
-        delayMicroseconds(10);
-    }
-    
-    #endif
-    
-    delay(TIME_TO_ADVANCE_HALF_TILE);
-    
-    turnOffMotors();
-}
-
-void stepBack()
-{
-    move(Backwards);
-    
-    delay(TIME_TO_ADVANCE_HALF_TILE);
-    
-    turnOffMotors();
-}
-
-void turnRight()
-{
-    move(Right);
-    
-    delay(TIME_TO_TURN);
-    
-    turnOffMotors();
-}
-
-void turnLeft()
-{
-    move(Left);
-    
-    delay(TIME_TO_TURN);
-    
-    turnOffMotors();
-}
-
-inline void turnOffMotors()
-{
-    move(Standing, 0);
 }
 
 #if ENABLE_ENCODER
@@ -362,103 +160,6 @@ void rightEncoder()
 }
 
 #endif
-
-/// Color sensor
-
-Colors readColor()
-{
-    float red, green, blue = 0;
-    
-    sensorColor.getRGB(&red, &green, &blue);
-    
-    Color color;
-    color.red = red;
-    color.green = green;
-    color.blue = blue;
-    
-    Serial.println("Colors");
-    Serial.println(color.red);
-    Serial.println(color.green);
-    Serial.println(color.blue); 
-    
-    return identifyColor(color);
-}
-
-/// Ultrasonic
-
-bool isWallInLeft()
-{
-    return leftUltrasonic.ping_cm() <= WALL_OFFSET;
-}
-
-bool isWallInFront()
-{
-    return frontUltrasonic.ping_cm() <= WALL_OFFSET;
-}
-
-bool isWallInRight()
-{
-    return rightUltrasonic.ping_cm() <= WALL_OFFSET;
-}
-
-/// Servo
-
-void openGripper()
-{
-    gripper.write(0);
-}
-
-void closeGripper()
-{
-    gripper.write(90);
-}
-
-/// LED
-
-// Returns true if the color was defined, otherwise false
-bool turnOnLED(Colors color)
-{
-    // Asociate the color identificated with a certain partern of the LED
-    switch (color)
-    {
-    case RED:
-    case MAGENTA:
-        digitalWrite(LED_RED_PIN, HIGH);
-        digitalWrite(LED_GREEN_PIN, LOW);
-        digitalWrite(LED_BLUE_PIN, LOW);
-        break;
-    case GREEN:
-    case PURPLE:
-        digitalWrite(LED_RED_PIN, LOW);
-        digitalWrite(LED_GREEN_PIN, HIGH);
-        digitalWrite(LED_BLUE_PIN, LOW);
-        break;
-    case BLUE:
-    case YELLOW:
-        digitalWrite(LED_RED_PIN, LOW);
-        digitalWrite(LED_GREEN_PIN, LOW);
-        digitalWrite(LED_BLUE_PIN, HIGH);
-        break;
-    case WHITE:
-        digitalWrite(LED_RED_PIN, HIGH);
-        digitalWrite(LED_GREEN_PIN, HIGH);
-        digitalWrite(LED_BLUE_PIN, HIGH);
-        break;
-    
-    default:
-        digitalWrite(LED_RED_PIN, LOW);
-        digitalWrite(LED_GREEN_PIN, LOW);
-        digitalWrite(LED_BLUE_PIN, LOW);
-        return false;
-    }
-    
-    return true;
-}
-
-inline void turnOffLED()
-{
-    turnOnLED(BLACK);
-}
 
 /// Zones
 
@@ -600,14 +301,14 @@ void zoneB()
     bool isEndReached = false;
     while (!isEndReached)
     {
-        const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
-        const byte NORTH_IR_BIT = digitalRead(NORTH_IR_PIN) << 1;
-        const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN);
+        // const byte WEST_IR_BIT = digitalRead(WEST_IR_PIN) << 2;
+        // const byte NORTH_IR_BIT = digitalRead(NORTH_IR_PIN) << 1;
+        // const byte EAST_IR_BIT = digitalRead(EAST_IR_PIN);
         
-        // Concatenate bits
-        const byte IR_BYTE = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
+        // // Concatenate bits
+        // const byte IR_BYTE = WEST_IR_BIT | NORTH_IR_BIT | EAST_IR_BIT;
         
-        // Serial.println(IR_BYTES, BIN);
+        const byte IR_BYTE = readIRs();
         
         switch (IR_BYTE)
         {
@@ -738,87 +439,7 @@ bool scan(Direction &lastTurn)
         delay(finalTime);
     }
     
-    // bool lineIsLocatedFirstSide = false;
-    // lastTurn = firstSide;
-    // move(firstSide);
-    
-    // unsigned long initialTime = millis();
-    // // In miliseconds
-    // const unsigned long finalTime = 1000;
-    
-    // while (millis() - initialTime <= finalTime)
-    // {
-    //     if (!digitalRead(WEST_IR_PIN))
-    //     {
-    //         lineIsLocatedFirstSide = true;
-    //         break;
-    //     }
-        
-    //     if (!digitalRead(NORTH_IR_PIN))
-    //     {
-    //         lineIsLocatedFirstSide = true;
-    //         break;
-    //     }
-        
-    //     if (!digitalRead(EAST_IR_PIN))
-    //     {
-    //         lineIsLocatedFirstSide = true;
-    //         break;
-    //     }
-    // }
-    
-    // move(Standing);
-    
-    // delay(100);
-    
-    // // We should continue with the code
-    // if (lineIsLocatedFirstSide) return false;
-    
-    // // Move back
-    // lastTurn = SecondSide;
-    // move(SecondSide);
-    
-    // delay(finalTime);
-    
-    // Serial.println("Scanning Right");
-    
-    // bool lineIsLocatedSecondSide = false;
-    // initialTime = millis();
-    
-    // while (millis() - initialTime <= finalTime)
-    // {
-    //     if (!digitalRead(WEST_IR_PIN))
-    //     {
-    //         lineIsLocatedSecondSide = true;
-    //         break;
-    //     }
-        
-    //     if (!digitalRead(NORTH_IR_PIN))
-    //     {
-    //         lineIsLocatedSecondSide = true;
-    //         break;
-    //     }
-        
-    //     if (!digitalRead(EAST_IR_PIN))
-    //     {
-    //         lineIsLocatedSecondSide = true;
-    //         break;
-    //     }
-    // }
-    
-    // move(Standing);
-    
-    // delay(100);
-    
-    // lastTurn = firstSide;
-    // move(firstSide);
-    
-    // delay(finalTime);
-    
     move(Standing);
-    
-    // Yeah we are done with this zone
-    // if (!lineIsLocatedSecondSide) return true;
     
     return true;
 }
@@ -832,56 +453,156 @@ void zoneC()
     const uint8_t sizeY = 6; // Size of 6 really
     
     // Initial coordinates in the plane
-    uint8_t coordinateX = 1;
-    uint8_t coordinateY = 0;
+    Coordinate coordinate;
+    coordinate.x = 1;
+    coordinate.y = 1;
+    
+    // Initialize blacklist
+    const uint8_t blacklistSize = 3;
+    uint8_t blackListCount = 0;
+    Coordinate blacklist[blacklistSize];
+    for (uint8_t i = 0; i < blacklistSize; ++i)
+    {
+        blacklist[i].x = sizeX;
+        blacklist[i].y = sizeY;
+    }
     
     // Default facing
     uint8_t cardinalDirection = North;
+    while (coordinate.x != 2 | coordinate.y != 5)
+    {
+        // Using the right hand method to solve the maze
+        if (!isWallInRight() & !isBlackTileInFront(cardinalDirection, Right, coordinate, blacklist))
+        {
+            // Go right
+            Serial.println("Going right!");
+            
+            // Rotate the view to 90 degrees to the right
+            cardinalDirection = (cardinalDirection + 1) % 4;
+            turnRight();
+            
+            // Move coordinate
+            
+            updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+            
+            stepForward();
+            
+            // If we detect something black
+            if (readIRs() != 0b111)
+            {
+                stepBack();
+                // We should mark this place cannot be touched
+                blacklist[blackListCount].x = coordinate.x;
+                blacklist[blackListCount].y = coordinate.y;
+                
+                ++blackListCount;
+                
+                Serial.println("Black tile in right!");
+                
+                // Return to the last coordinate
+                cardinalDirection = (cardinalDirection + 2) % 4;
+                updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+                cardinalDirection = (cardinalDirection + 2) % 4;
+            }
+            else
+            {
+                stepForward();
+                
+                Colors color = readColor();
+                bool isLEDDisplayed = turnOnLED(color);
+            }
+        }
+        else if (!isWallInFront() & !isBlackTileInFront(cardinalDirection, Forward, coordinate, blacklist))
+        {
+            // Go forward
+            // And update coordinate
+            Serial.println("Going forward!");
+            
+            updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+            
+            stepForward();
+            
+            // If we detect something black
+            if (readIRs() != 0b111)
+            {
+                stepBack();
+                // We should mark this place cannot be touched
+                blacklist[blackListCount].x = coordinate.x;
+                blacklist[blackListCount].y = coordinate.y;
+                
+                ++blackListCount;
+                
+                Serial.println("Black tile in forward!");
+                
+                // Return to the last coordinate
+                cardinalDirection = (cardinalDirection + 2) % 4;
+                updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+                cardinalDirection = (cardinalDirection + 2) % 4;
+            }
+            else
+            {
+                stepForward();
+                
+                Colors color = readColor();
+                bool isLEDDisplayed = turnOnLED(color);
+            }
+        }
+        else
+        {
+            // Turn left
+            
+            // Rotate the view to 90 degrees to the left
+            cardinalDirection = (cardinalDirection - 1) % 4;
+            turnLeft();
+        }
+    }
     
-    // Using the right hand method to solve the maze
-    if (!isWallInRight())
+    halt();
+}
+
+bool isBlackTileInFront(uint8_t direction, Direction turnDirection, Coordinate coord, Coordinate blacklist[])
+{
+    switch (turnDirection)
     {
-        // Go right
-        
-        // Rotate the view to 90 degrees to the right
-        cardinalDirection = (cardinalDirection + 1) % 4;
-        turnRight();
-        
-        // Move coordinate
-        
-        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
-        
-        stepForward();
-        stepForward();
-        
-        Colors color = readColor();
-        
-        bool isLEDDisplayed = turnOnLED(color);
-    }
-    else if (!isWallInFront())
-    {
-        // Go forward
-        // And update coordinate
-        
-        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
-        
-        stepForward();
-        stepForward();
-    }
-    else
-    {
-        // Turn left
-        
-        // Rotate the view to 90 degrees to the left
-        cardinalDirection = (cardinalDirection - 1) % 4;
-        turnLeft();
+    case Left:
+        direction = (direction - 1) % 4;
+        break;
+    case Right:
+        direction = (direction + 1) % 4;
+        break;
     }
     
-    if (coordinateX == 2 & coordinateY == 5)
+    switch (direction)
     {
-        // Done!
-        halt();
+    case North:
+        ++coord.y;
+        break;
+    case South:
+        --coord.y;
+        break;
+    case West:
+        --coord.x;
+        break;
+    case East:
+        ++coord.x;
+        break;
     }
+    
+    for (uint8_t i = 0; i < size_t(blacklist); ++i)
+    {
+        // Default values must be omitted
+        if (blacklist[i].x == 3 & blacklist[i].y == 6) continue;
+        
+        if (blacklist[i].x == coord.x & blacklist[i].y == coord.y)
+        {
+            // We found a black tile!
+            // Step back!
+            return true;
+        }
+    }
+    
+    // There is no black tile ahead
+    return false;
 }
 
 void updateCoordinate(uint8_t cardinalDirection, uint8_t &x, uint8_t &y)
