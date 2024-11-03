@@ -129,11 +129,38 @@ void setup()
 
 void loop()
 {
-    // zoneB();
-    
-    detectZone();
+    // stepForward();
+    // stepForward();
     
     // delay(1000);
+    
+    // turnRight();
+    zoneA();
+    // zoneB();
+    // zoneC();
+    
+    // stepForward();
+    // stepForward();
+    // stepForward();
+    // stepForward();
+    // stepForward();
+    // stepForward();
+    
+    // turnOnLED(readColor());
+    // halt();
+    
+    
+    // turnOnLED(readColor());
+    
+    // Serial.println("Ultrasonic");
+    // Serial.println(isWallInFront());
+    // Serial.println(isWallInLeft());
+    // Serial.println(isWallInRight());
+    
+    // detectZone();
+    
+    // delay(1000);
+    // halt();
 }
 
 #if ENABLE_ENCODER
@@ -198,15 +225,26 @@ void zoneA()
     const uint8_t sizeY = 5; // Size of 6
     
     // Initial coordinates in the plane
-    uint8_t coordinateX = 1;
-    uint8_t coordinateY = 0;
+    Coordinate coordinate;
+    coordinate.x = 1;
+    coordinate.y = 0;
+    
+    // Initialize blacklist
+    const uint8_t blacklistSize = 2;
+    uint8_t blackListCount = 0;
+    Coordinate blacklist[blacklistSize];
+    for (uint8_t i = 0; i < blacklistSize; ++i)
+    {
+        blacklist[i].x = sizeX;
+        blacklist[i].y = sizeY;
+    }
     
     // Default facing
     uint8_t cardinalDirection = North;
     
     bool lookForEnd = false;
     
-    updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+    updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
     stepForward();
     stepForward();
     
@@ -214,19 +252,28 @@ void zoneA()
     turnLeft();
     
     // Using the right hand method to find the center
-    if (!isWallInRight())
+    if (!isWallInRight() & !isBlackTileInFront(cardinalDirection, Right, coordinate, blacklist))
     {
         // Go right
+        
+        bool isWallLeft = isWallInLeft();
         
         // Rotate the view to 90 degrees to the right
         cardinalDirection = (cardinalDirection + 1) % 4;
         turnRight();
         
+        if (isWallLeft)
+        {
+            // Recalibrate orientation
+            stepBack();
+            stepForward();
+        }
+        
         // Move coordinate
         
-        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+        updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
         
-        if (coordinateX == 1 & coordinateY == 2)
+        if (coordinate.x == 1 & coordinate.y == 2)
         {
             // Seems we have found the place of the ball
             stepForward();
@@ -235,7 +282,7 @@ void zoneA()
             closeGripper();
             delay(1000);
             
-            updateCoordinate((cardinalDirection + 2) % 4, coordinateX, coordinateY);
+            updateCoordinate((cardinalDirection + 2) % 4, coordinate.x, coordinate.y);
             stepBack();
             
             cardinalDirection = (cardinalDirection - 1) % 4;
@@ -250,7 +297,7 @@ void zoneA()
             cardinalDirection = (cardinalDirection + 1) % 4;
             turnRight();
             
-            updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+            updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
             
             stepForward();
             stepForward();
@@ -261,18 +308,63 @@ void zoneA()
         else
         {
             stepForward();
-            stepForward();
+            
+            // If we detect something black
+            if (readIRs() != 0b111)
+            {
+                stepBack();
+                // We should mark this place cannot be touched
+                blacklist[blackListCount].x = coordinate.x;
+                blacklist[blackListCount].y = coordinate.y;
+                
+                ++blackListCount;
+                
+                Serial.println("Black tile in right!");
+                
+                // Return to the last coordinate
+                cardinalDirection = (cardinalDirection + 2) % 4;
+                updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+                cardinalDirection = (cardinalDirection + 2) % 4;
+            }
+            else
+            {
+                stepForward();
+            }
         }
     }
-    else if (!isWallInFront())
+    else if (!isWallInFront() & !isBlackTileInFront(cardinalDirection, Right, coordinate, blacklist))
     {
         // Go forward
         // And update coordinate
         
-        updateCoordinate(cardinalDirection, coordinateX, coordinateY);
+        updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
         
         stepForward();
-        stepForward();
+        
+        // If we detect something black
+        if (readIRs() != 0b111)
+        {
+            stepBack();
+            // We should mark this place cannot be touched
+            blacklist[blackListCount].x = coordinate.x;
+            blacklist[blackListCount].y = coordinate.y;
+            
+            ++blackListCount;
+            
+            Serial.println("Black tile in forward!");
+            
+            // Return to the last coordinate
+            cardinalDirection = (cardinalDirection + 2) % 4;
+            updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
+            cardinalDirection = (cardinalDirection + 2) % 4;
+        }
+        else
+        {
+            stepForward();
+            
+            Colors color = readColor();
+            bool isLEDDisplayed = turnOnLED(color);
+        }
     }
     else
     {
@@ -285,7 +377,7 @@ void zoneA()
     
     if (lookForEnd)
     {
-        if (coordinateX == 2 & coordinateY == 4)
+        if (coordinate.x == 2 & coordinate.y == 4)
         {
             // Done!
             halt();
@@ -467,19 +559,33 @@ void zoneC()
         blacklist[i].y = sizeY;
     }
     
+    
+    Serial.println("Zone C starting");
     // Default facing
     uint8_t cardinalDirection = North;
-    while (coordinate.x != 2 | coordinate.y != 5)
+    // while (!(coordinate.x == 2 & coordinate.y == 5))
+    while (true)
     {
+        Serial.println("Analizyng!");
         // Using the right hand method to solve the maze
         if (!isWallInRight() & !isBlackTileInFront(cardinalDirection, Right, coordinate, blacklist))
         {
             // Go right
             Serial.println("Going right!");
             
+            bool isWallLeft = isWallInLeft();
+            
+            // turnOnLED(WHITE);
             // Rotate the view to 90 degrees to the right
             cardinalDirection = (cardinalDirection + 1) % 4;
             turnRight();
+            
+            if (isWallLeft)
+            {
+                // Recalibrate orientation
+                stepBack();
+                stepForward();
+            }
             
             // Move coordinate
             
@@ -509,7 +615,7 @@ void zoneC()
                 stepForward();
                 
                 Colors color = readColor();
-                bool isLEDDisplayed = turnOnLED(color);
+                turnOnLED(color);
             }
         }
         else if (!isWallInFront() & !isBlackTileInFront(cardinalDirection, Forward, coordinate, blacklist))
@@ -518,6 +624,7 @@ void zoneC()
             // And update coordinate
             Serial.println("Going forward!");
             
+            // turnOnLED(RED);
             updateCoordinate(cardinalDirection, coordinate.x, coordinate.y);
             
             stepForward();
@@ -544,18 +651,24 @@ void zoneC()
                 stepForward();
                 
                 Colors color = readColor();
-                bool isLEDDisplayed = turnOnLED(color);
+                turnOnLED(color);
             }
         }
         else
         {
             // Turn left
-            
+            Serial.println("Turning left");
             // Rotate the view to 90 degrees to the left
             cardinalDirection = (cardinalDirection - 1) % 4;
             turnLeft();
+            
+            stepBack();
+            stepForward();
         }
     }
+    
+    
+    Serial.println("Done zone C!");
     
     halt();
 }
@@ -588,7 +701,7 @@ bool isBlackTileInFront(uint8_t direction, Direction turnDirection, Coordinate c
         break;
     }
     
-    for (uint8_t i = 0; i < size_t(blacklist); ++i)
+    for (uint8_t i = 0; i < 3; ++i)
     {
         // Default values must be omitted
         if (blacklist[i].x == 3 & blacklist[i].y == 6) continue;

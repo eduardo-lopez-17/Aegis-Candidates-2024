@@ -13,9 +13,9 @@
 
 // Ultrasonic
 
-static const uint8_t FRONT_ULTRASONIC_PIN = 11;
-static const uint8_t LEFT_ULTRASONIC_PIN = 12;
-static const uint8_t RIGHT_ULTRASONIC_PIN = 13;
+static const uint8_t FRONT_ULTRASONIC_PIN = 12;
+static const uint8_t LEFT_ULTRASONIC_PIN = 13;
+static const uint8_t RIGHT_ULTRASONIC_PIN = 11;
 
 // Infrared
 

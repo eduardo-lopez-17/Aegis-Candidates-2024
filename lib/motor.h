@@ -18,8 +18,9 @@ enum Direction {
 static Direction direction = Standing;
 static const uint8_t BASE_SPEED = 70;
 
-static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 2000;
-static const uint16_t TIME_TO_TURN = 1000;
+// static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 850;
+static const uint16_t TIME_TO_ADVANCE_HALF_TILE = 900;
+static const uint16_t TIME_TO_TURN = 1250;
 
 /// Motor
 

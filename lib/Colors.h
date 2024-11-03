@@ -55,31 +55,31 @@ static Color PURPLE_RGB;
 
 void initializeColorDefinitions()
 {
-    RED_RGB.red = 167;
-    RED_RGB.green = 67;
-    RED_RGB.blue = 167;
+    RED_RGB.red = 190;
+    RED_RGB.green = 108;
+    RED_RGB.blue = 97;
     
-    GREEN_RGB.red = 84;
-    GREEN_RGB.green = 106;
-    GREEN_RGB.blue = 54;
+    GREEN_RGB.red = 118;
+    GREEN_RGB.green = 142;
+    GREEN_RGB.blue = 90;
     
-    YELLOW_RGB.red = 76;
-    YELLOW_RGB.green = 91;
-    YELLOW_RGB.blue = 78;
+    YELLOW_RGB.red = 142;
+    YELLOW_RGB.green = 115;
+    YELLOW_RGB.blue = 66;
     
-    MAGENTA_RGB.red = 102;
-    MAGENTA_RGB.green = 72;
-    MAGENTA_RGB.blue = 67;
+    MAGENTA_RGB.red = 166;
+    MAGENTA_RGB.green = 103;
+    MAGENTA_RGB.blue = 124;
     
-    PURPLE_RGB.red = 148;
-    PURPLE_RGB.green = 142;
-    PURPLE_RGB.blue = 156;
+    PURPLE_RGB.red = 135;
+    PURPLE_RGB.green = 119;
+    PURPLE_RGB.blue = 130;
 }
 
 bool isInRange(uint8_t value, uint8_t ref)
 {
     // In %
-    const float ERROR_MARGIN = 0.1;
+    const float ERROR_MARGIN = 0.2;
     const uint8_t HIGH_MARGIN = (uint8_t)constrain(float(ref * (1 + ERROR_MARGIN)), 0, 255);
     const uint8_t LOW_MARGIN = (uint8_t)constrain(float(ref * (1 - ERROR_MARGIN)), 0, 255);
     

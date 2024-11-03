@@ -10,7 +10,7 @@ NewPing frontUltrasonic = NewPing(FRONT_ULTRASONIC_PIN, FRONT_ULTRASONIC_PIN);
 NewPing leftUltrasonic = NewPing(LEFT_ULTRASONIC_PIN, LEFT_ULTRASONIC_PIN);
 NewPing rightUltrasonic = NewPing(RIGHT_ULTRASONIC_PIN, RIGHT_ULTRASONIC_PIN);
 
-static const uint8_t WALL_OFFSET = 15;
+static const uint8_t WALL_OFFSET = 30;
 
 /// Functions
 

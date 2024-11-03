@@ -7,7 +7,7 @@
 // Color
 
 Adafruit_TCS34725 sensorColor = Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_540MS,
+    TCS34725_INTEGRATIONTIME_614MS,
     TCS34725_GAIN_4X);
 
 /// Color sensor
